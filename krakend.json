@@ -1,0 +1,147 @@
+{
+  "version": 2,
+  "name": "Gateway",
+  "port": 8090,
+  "cache_ttl": "3600s",
+  "timeout": "3s",
+  "extra_config": {
+    "github_com/devopsfaith/krakend-gologging": {
+      "level": "DEBUG",
+      "prefix": "[KRAKEND]",
+      "syslog": false,
+      "stdout": true
+    },
+    "github_com/devopsfaith/krakend-metrics": {
+      "collection_time": "60s",
+      "proxy_disabled": false,
+      "router_disabled": false,
+      "backend_disabled": false,
+      "endpoint_disabled": false,
+      "listen_address": ":8000"
+    },
+    "github_com/devopsfaith/krakend-cors": {
+      "allow_methods": [
+        "GET",
+        "HEAD",
+        "POST",
+        "PUT",
+        "DELETE",
+        "CONNECT",
+        "OPTIONS",
+        "TRACE",
+        "PATCH"
+      ],
+      "allow_headers": [
+        "Origin",
+        "Authorization",
+        "Content-Type",
+        "Content-Length",
+        "Access-Control-Allow-Origin",
+        "Accept",
+        "X-Requested-With",
+        "Cache-Control",
+        "Postman-Token"
+      ],
+      "allow_credentials": true,
+      "max_age": "1s",
+      "expose_headers": [
+        "Origin",
+        "Authorization",
+        "Content-Type",
+        "Content-Length",
+        "Access-Control-Allow-Origin",
+        "Accept",
+        "X-Requested-With",
+        "Cache-Control",
+        "Postman-Token"
+      ]
+    }
+  },
+  "endpoints": [
+    {
+      "endpoint": "/api/movies",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "headers_to_pass": [
+        "Content-Type",
+        "Content-Length",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "host": ["http://movies:8080"],
+          "url_pattern": "/api/movies",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/movies/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "headers_to_pass": [
+        "Content-Type",
+        "Content-Length",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "host": ["http://movies:8080"],
+          "url_pattern": "/api/movies/{id}",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/movies",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "headers_to_pass": [
+        "Content-Type",
+        "Content-Length",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "host": ["http://movies:8080"],
+          "url_pattern": "/api/movies",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/movies/{id}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "headers_to_pass": [
+        "Content-Type",
+        "Content-Length",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "host": ["http://movies:8080"],
+          "url_pattern": "/api/movies/{id}",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/movies/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "headers_to_pass": [
+        "Content-Type",
+        "Content-Length",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "host": ["http://movies:8080"],
+          "url_pattern": "/api/movies/{id}",
+          "encoding": "no-op"
+        }
+      ]
+    }
+  ]
+}

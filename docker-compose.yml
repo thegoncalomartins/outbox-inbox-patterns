@@ -1,0 +1,132 @@
+version: '3.8'
+
+services:
+  kafka:
+    container_name: kafka
+    hostname: kafka
+    image: landoop/fast-data-dev:2.6.2
+    environment:
+      ADV_HOST: kafka                                         
+      RUNTESTS: 0                                             # Disable Running tests so the cluster starts faster
+      SAMPLEDATA: 0                                           # Disable sample data topic creation
+      RUNNING_SAMPLEDATA: 0                                   # Disable sample data
+    ports:
+      - 2181:2181                                             # Zookeeper
+      - 3030:3030                                             # Landoop UI
+      - 8091-8093:8081-8083                                   # REST Proxy, Schema Registry, & Kafka Connect
+      - 9581-9585:9581-9585                                   # JMX Ports
+      - 9092:9092                                             # Kafka Broker
+    volumes:
+      - ./debezium-connector-mongodb:/connectors/debezium-connector-mongodb
+
+  movies-db-primary:
+    image: bitnami/mongodb:5.0.3
+    container_name: movies-db-primary
+    hostname: movies-db-primary
+    environment:
+      MONGODB_ADVERTISED_HOSTNAME: movies-db-primary
+      MONGODB_REPLICA_SET_MODE: primary
+      MONGODB_ROOT_PASSWORD: xH8Tw7Ug8ApgEC2b
+      MONGODB_REPLICA_SET_KEY: TmgCWuwYYsA552Bb
+    ports:
+      - 27017:27017
+
+  movies-db-secondary:
+    image: bitnami/mongodb:5.0.3
+    container_name: movies-db-secondary
+    hostname: movies-db-secondary
+    environment:
+      MONGODB_ADVERTISED_HOSTNAME: movies-db-secondary
+      MONGODB_REPLICA_SET_MODE: secondary
+      MONGODB_PRIMARY_HOST: movies-db-primary
+      MONGODB_PRIMARY_ROOT_PASSWORD: xH8Tw7Ug8ApgEC2b
+      MONGODB_REPLICA_SET_KEY: TmgCWuwYYsA552Bb
+    depends_on:
+      - movies-db-primary
+
+  movies-db-arbiter:
+    image: bitnami/mongodb:5.0.3
+    container_name: movies-db-arbiter
+    hostname: movies-db-arbiter
+    environment:
+      MONGODB_ADVERTISED_HOSTNAME: movies-db-arbiter
+      MONGODB_REPLICA_SET_MODE: arbiter
+      MONGODB_PRIMARY_HOST: movies-db-primary
+      MONGODB_PRIMARY_ROOT_PASSWORD: xH8Tw7Ug8ApgEC2b
+      MONGODB_REPLICA_SET_KEY: TmgCWuwYYsA552Bb
+    depends_on:
+      - movies-db-primary
+      - movies-db-secondary
+
+  people-db-primary:
+    image: bitnami/mongodb:5.0.3
+    container_name: people-db-primary
+    hostname: people-db-primary
+    environment:
+      MONGODB_ADVERTISED_HOSTNAME: people-db-primary
+      MONGODB_REPLICA_SET_MODE: primary
+      MONGODB_ROOT_PASSWORD: v5au8MVCvgh5BpSJ
+      MONGODB_REPLICA_SET_KEY: rhMmahJsMJZg8LcG
+    ports:
+      - 27018:27017
+
+  people-db-secondary:
+    image: bitnami/mongodb:5.0.3
+    container_name: people-db-secondary
+    hostname: people-db-secondary
+    environment:
+      MONGODB_ADVERTISED_HOSTNAME: people-db-secondary
+      MONGODB_REPLICA_SET_MODE: secondary
+      MONGODB_PRIMARY_HOST: people-db-primary
+      MONGODB_PRIMARY_ROOT_PASSWORD: v5au8MVCvgh5BpSJ
+      MONGODB_REPLICA_SET_KEY: rhMmahJsMJZg8LcG
+    depends_on:
+      - people-db-primary
+
+  people-db-arbiter:
+    image: bitnami/mongodb:5.0.3
+    container_name: people-db-arbiter
+    hostname: people-db-arbiter
+    environment:
+      MONGODB_ADVERTISED_HOSTNAME: people-db-arbiter
+      MONGODB_REPLICA_SET_MODE: arbiter
+      MONGODB_PRIMARY_HOST: people-db-primary
+      MONGODB_PRIMARY_ROOT_PASSWORD: v5au8MVCvgh5BpSJ
+      MONGODB_REPLICA_SET_KEY: rhMmahJsMJZg8LcG
+    depends_on:
+      - people-db-primary
+      - people-db-secondary
+
+  cinematography-db:
+    image: neo4j:4.1.9
+    container_name: cinematography-db
+    hostname: cinematography-db
+    ports:
+      - 7474:7474 # HTTP
+      - 7687:7687 # BOLT
+
+  movies:
+    build:
+      context: ./movies
+      target: RUN
+      dockerfile: ./src/main/docker/Dockerfile.jvm
+    container_name: movies
+    hostname: movies
+    ports:
+      - 8080:8080
+    depends_on:
+      - movies-db-primary
+      - movies-db-secondary
+      - movies-db-arbiter
+
+  api-gateway:
+    image: devopsfaith/krakend
+    container_name: api-gateway
+    hostname: api-gateway
+    ports:
+      - 8090:8090
+      - 8000:8000
+    volumes:
+      - ./krakend.json:/etc/krakend/krakend.json
+    depends_on:
+      - movies
