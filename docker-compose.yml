@@ -119,6 +119,20 @@ services:
       - movies-db-secondary
       - movies-db-arbiter
 
+  people:
+    build:
+      context: ./people
+      target: RUN
+      dockerfile: ./src/main/docker/Dockerfile.jvm
+    container_name: people
+    hostname: people
+    ports:
+      - 8081:8080
+    depends_on:
+      - people-db-primary
+      - people-db-secondary
+      - people-db-arbiter
+
   api-gateway:
     image: devopsfaith/krakend
     container_name: api-gateway
@@ -130,3 +144,4 @@ services:
       - ./krakend.json:/etc/krakend/krakend.json
     depends_on:
       - movies
+      - people

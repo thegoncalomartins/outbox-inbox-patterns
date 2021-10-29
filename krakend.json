@@ -142,6 +142,91 @@
           "encoding": "no-op"
         }
       ]
+    },
+    {
+      "endpoint": "/api/people",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "headers_to_pass": [
+        "Content-Type",
+        "Content-Length",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "host": ["http://people:8080"],
+          "url_pattern": "/api/people",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/people/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "headers_to_pass": [
+        "Content-Type",
+        "Content-Length",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "host": ["http://people:8080"],
+          "url_pattern": "/api/people/{id}",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/people",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "headers_to_pass": [
+        "Content-Type",
+        "Content-Length",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "host": ["http://people:8080"],
+          "url_pattern": "/api/people",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/people/{id}",
+      "method": "PUT",
+      "output_encoding": "no-op",
+      "headers_to_pass": [
+        "Content-Type",
+        "Content-Length",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "host": ["http://people:8080"],
+          "url_pattern": "/api/people/{id}",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/people/{id}",
+      "method": "DELETE",
+      "output_encoding": "no-op",
+      "headers_to_pass": [
+        "Content-Type",
+        "Content-Length",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "host": ["http://people:8080"],
+          "url_pattern": "/api/people/{id}",
+          "encoding": "no-op"
+        }
+      ]
     }
   ]
 }
