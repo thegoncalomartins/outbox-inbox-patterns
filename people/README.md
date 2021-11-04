@@ -59,7 +59,7 @@ transforms: unwrap,createKey
 mongodb.hosts: people-db-primary:27017
 mongodb.user: root
 mongodb.password: v5au8MVCvgh5BpSJ
-mongodb.name: people
+mongodb.name: people-db
 collection.include.list: people.outbox
 transforms.createKey.type: org.apache.kafka.connect.transforms.ValueToKey
 transforms.addPrefix.type: org.apache.kafka.connect.transforms.RegexRouter

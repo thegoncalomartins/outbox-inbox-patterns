@@ -13,9 +13,9 @@ import java.time.ZoneId
 class Movie() : IPayload {
     var id: ObjectId? = null
 
-    lateinit var name: String
+    lateinit var title: String
 
-    var year: Int = Instant.now().atZone(ZoneId.systemDefault()).year
+    var released: Int = Instant.now().atZone(ZoneId.systemDefault()).year
 
     @BsonProperty("directed_by")
     var directedBy: Set<String> = emptySet()
@@ -30,14 +30,14 @@ class Movie() : IPayload {
 
     constructor(
         id: ObjectId? = null,
-        name: String,
-        year: Int,
+        title: String,
+        released: Int,
         directedBy: Set<String>,
         cast: Set<String>
     ) : this() {
         this.id = id
-        this.name = name
-        this.year = year
+        this.title = title
+        this.released = released
         this.directedBy = directedBy
         this.cast = cast
     }
@@ -49,8 +49,8 @@ class Movie() : IPayload {
     override fun toJson(): JsonObject =
         JsonObject()
             .put("id", id!!.toHexString())
-            .put("name", name)
-            .put("year", year)
+            .put("title", title)
+            .put("released", released)
             .put("directed_by", directedBy)
             .put("cast", cast)
             .put("created_at", createdAt)

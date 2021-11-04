@@ -59,7 +59,7 @@ transforms: unwrap,createKey
 mongodb.hosts: movies-db-primary:27017
 mongodb.user: root
 mongodb.password: xH8Tw7Ug8ApgEC2b
-mongodb.name: movies
+mongodb.name: movies-db
 collection.include.list: movies.outbox
 transforms.createKey.type: org.apache.kafka.connect.transforms.ValueToKey
 transforms.addPrefix.type: org.apache.kafka.connect.transforms.RegexRouter

@@ -21,8 +21,8 @@ class MovieRepository : ReactivePanacheMongoRepository<Movie> {
         .findOneAndUpdate(
             eq("_id", entity.id),
             combine(
-                set("name", entity.name),
-                set("year", entity.year),
+                set("title", entity.title),
+                set("released", entity.released),
                 set("directed_by", entity.directedBy),
                 set("cast", entity.cast),
                 set("updated_at", entity.updatedAt)

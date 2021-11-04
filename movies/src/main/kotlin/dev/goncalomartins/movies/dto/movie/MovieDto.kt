@@ -13,8 +13,8 @@ import java.time.Instant
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 class MovieDto(
     val id: String? = null,
-    val name: String,
-    val year: Int,
+    val title: String,
+    val released: Int,
     val directedBy: Set<String>? = emptySet(),
     val cast: Set<String>? = emptySet(),
     val createdAt: Instant?,
@@ -24,16 +24,16 @@ class MovieDto(
 
 fun MovieDto.toModel(id: String? = null) = Movie(
     id = id?.let { ObjectId(it) },
-    name = name,
-    year = year,
+    title = title,
+    released = released,
     directedBy = directedBy ?: emptySet(),
     cast = cast ?: emptySet()
 )
 
 fun Movie.toDto(links: Map<String, Link>) = MovieDto(
     id = id?.toHexString(),
-    name = name,
-    year = year,
+    title = title,
+    released = released,
     directedBy = directedBy,
     cast = cast,
     links = links,
