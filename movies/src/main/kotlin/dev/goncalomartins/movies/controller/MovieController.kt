@@ -5,7 +5,6 @@ import dev.goncalomartins.movies.dto.error.ErrorDto
 import dev.goncalomartins.movies.dto.hypermedia.CollectionDto
 import dev.goncalomartins.movies.dto.movie.MovieDto
 import dev.goncalomartins.movies.dto.movie.toDto
-import dev.goncalomartins.movies.dto.movie.toModel
 import dev.goncalomartins.movies.exception.MovieNotFoundException
 import dev.goncalomartins.movies.model.movie.Movie
 import dev.goncalomartins.movies.service.MovieService
@@ -61,7 +60,7 @@ class MovieController(
     @POST
     @Blocking
     fun create(movie: MovieDto): Uni<RestResponse<MovieDto>> =
-        movieService.create(movie.toModel())
+        movieService.create(movie.toMovie())
             .map {
                 RestResponse.ResponseBuilder.create(Response.Status.CREATED, toDto(it)).location(
                     controllerUtils.buildLink(
@@ -75,7 +74,7 @@ class MovieController(
     @Path("/{id}")
     @Blocking
     fun update(@PathParam(ID_PARAMETER) id: String, movie: MovieDto): Uni<RestResponse<MovieDto>> =
-        movieService.update(movie.toModel(id)).map { RestResponse.ok(toDto(it)) }
+        movieService.update(movie.toMovie(id)).map { RestResponse.ok(toDto(it)) }
 
     @DELETE
     @Path("/{id}")
