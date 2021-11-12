@@ -101,6 +101,8 @@ services:
     image: neo4j:4.1.9
     container_name: cinematography-db
     hostname: cinematography-db
+    environment:
+      NEO4J_AUTH: "neo4j/HNxzZk7GBNcKv5kW"
     ports:
       - 7474:7474 # HTTP
       - 7687:7687 # BOLT
@@ -132,6 +134,16 @@ services:
       - people-db-primary
       - people-db-secondary
       - people-db-arbiter
+
+  cinematography-consumer:
+    build:
+      context: ./cinematography
+      target: RUN
+      dockerfile: ./consumer/src/docker/Dockerfile.jvm
+    container_name: cinematography-consumer
+    depends_on:
+      - kafka
+      - cinematography-db
 
   api-gateway:
     image: devopsfaith/krakend
