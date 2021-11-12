@@ -12,9 +12,11 @@ import io.quarkus.mongodb.panache.kotlin.reactive.ReactivePanacheMongoRepository
 import io.smallrye.mutiny.Multi
 import io.smallrye.mutiny.Uni
 import org.bson.types.ObjectId
+import org.eclipse.microprofile.opentracing.Traced
 import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
+@Traced
 class MovieRepository : ReactivePanacheMongoRepository<Movie> {
 
     override fun update(entity: Movie): Uni<Movie> = mongoCollection()

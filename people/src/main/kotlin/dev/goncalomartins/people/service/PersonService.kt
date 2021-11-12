@@ -1,15 +1,17 @@
 package dev.goncalomartins.people.service
 
 import dev.goncalomartins.people.exception.PersonNotFoundException
-import dev.goncalomartins.people.model.person.Person
-import dev.goncalomartins.people.model.person.People
 import dev.goncalomartins.people.model.outbox.EventType
+import dev.goncalomartins.people.model.person.People
+import dev.goncalomartins.people.model.person.Person
 import dev.goncalomartins.people.repository.PersonRepository
 import io.smallrye.mutiny.Uni
+import org.eclipse.microprofile.opentracing.Traced
 import javax.enterprise.context.ApplicationScoped
 import javax.transaction.Transactional
 
 @ApplicationScoped
+@Traced
 class PersonService(
     var repository: PersonRepository,
     var outboxService: OutboxService

@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'people'
+    metrics_path: /q/metrics
+    static_configs:
+      - targets: ['people:8080']
+  - job_name: 'movies'
+    metrics_path: /q/metrics
+    static_configs:
+      - targets: ['movies:8080']

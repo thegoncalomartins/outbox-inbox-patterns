@@ -11,8 +11,11 @@ import dev.goncalomartins.movies.service.MovieService
 import dev.goncalomartins.movies.service.MovieService.Companion.DEFAULT_LIMIT
 import dev.goncalomartins.movies.service.MovieService.Companion.DEFAULT_SKIP
 import dev.goncalomartins.movies.util.ControllerUtils
+import io.micrometer.core.annotation.Counted
+import io.micrometer.core.annotation.Timed
 import io.smallrye.common.annotation.Blocking
 import io.smallrye.mutiny.Uni
+import org.eclipse.microprofile.opentracing.Traced
 import org.jboss.resteasy.reactive.RestResponse
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper
 import javax.ws.rs.Consumes
@@ -31,6 +34,7 @@ import javax.ws.rs.core.Response
 @Path(PATH)
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Traced
 class MovieController(
     var movieService: MovieService,
     var controllerUtils: ControllerUtils
@@ -44,6 +48,8 @@ class MovieController(
         const val ID_PARAMETER = "id"
     }
 
+    @Counted(value = "api.movies.findAll.count", description = "How many times GET /api/movies has been requested")
+    @Timed(value = "api.movies.findAll.time", description = "Response time for GET /api/movies")
     @GET
     fun findAll(
         @QueryParam(LIMIT_PARAMETER) @DefaultValue(DEFAULT_LIMIT.toString()) limit: Int,
@@ -52,11 +58,15 @@ class MovieController(
         movieService.findAll()
             .map { RestResponse.ok(toDto(total = it.total, limit = limit, skip = skip, movies = it.movies)) }
 
+    @Counted(value = "api.movies.findOne.count", description = "How many times GET /api/movies/{id} has been requested")
+    @Timed(value = "api.movies.findOne.time", description = "Response time for GET /api/movies/{id}")
     @GET
     @Path("/{id}")
     fun findOne(@PathParam(ID_PARAMETER) id: String): Uni<RestResponse<MovieDto>> =
         movieService.findOne(id).map { RestResponse.ok(toDto(it)) }
 
+    @Counted(value = "api.movies.create.count", description = "How many times POST /api/movies has been requested")
+    @Timed(value = "api.movies.create.time", description = "Response time for POST /api/movies")
     @POST
     @Blocking
     fun create(movie: MovieDto): Uni<RestResponse<MovieDto>> =
@@ -70,12 +80,19 @@ class MovieController(
                 ).build()
             }
 
+    @Counted(value = "api.movies.update.count", description = "How many times PUT /api/movies/{id} has been requested")
+    @Timed(value = "api.movies.update.time", description = "Response time for PUT /api/movies/{id}")
     @PUT
     @Path("/{id}")
     @Blocking
     fun update(@PathParam(ID_PARAMETER) id: String, movie: MovieDto): Uni<RestResponse<MovieDto>> =
         movieService.update(movie.toMovie(id)).map { RestResponse.ok(toDto(it)) }
 
+    @Counted(
+        value = "api.movies.delete.count",
+        description = "How many times DELETE /api/movies/{id} has been requested"
+    )
+    @Timed(value = "api.movies.delete.time", description = "Response time for DELETE /api/movies/{id}")
     @DELETE
     @Path("/{id}")
     @Blocking

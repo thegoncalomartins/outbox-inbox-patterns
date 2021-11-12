@@ -6,10 +6,12 @@ import dev.goncalomartins.movies.model.movie.Movies
 import dev.goncalomartins.movies.model.outbox.EventType
 import dev.goncalomartins.movies.repository.MovieRepository
 import io.smallrye.mutiny.Uni
+import org.eclipse.microprofile.opentracing.Traced
 import javax.enterprise.context.ApplicationScoped
 import javax.transaction.Transactional
 
 @ApplicationScoped
+@Traced
 class MovieService(
     var repository: MovieRepository,
     var outboxService: OutboxService

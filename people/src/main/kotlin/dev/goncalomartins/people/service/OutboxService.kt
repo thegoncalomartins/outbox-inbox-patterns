@@ -5,9 +5,11 @@ import dev.goncalomartins.people.model.outbox.IPayload
 import dev.goncalomartins.people.model.outbox.OutboxEvent
 import dev.goncalomartins.people.repository.OutboxRepository
 import io.smallrye.mutiny.Uni
+import org.eclipse.microprofile.opentracing.Traced
 import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
+@Traced
 class OutboxService(
     var repository: OutboxRepository
 ) {
