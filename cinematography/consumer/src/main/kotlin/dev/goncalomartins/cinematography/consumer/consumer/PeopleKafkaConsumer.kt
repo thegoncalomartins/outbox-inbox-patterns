@@ -6,12 +6,14 @@ import dev.goncalomartins.cinematography.consumer.handler.PeopleHandler
 import io.smallrye.mutiny.Uni
 import io.smallrye.reactive.messaging.kafka.IncomingKafkaRecord
 import io.vertx.core.json.JsonObject
+import org.eclipse.microprofile.opentracing.Traced
 import org.eclipse.microprofile.reactive.messaging.Incoming
 import org.slf4j.LoggerFactory
 import java.util.function.Supplier
 import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
+@Traced
 class PeopleKafkaConsumer(val peopleHandler: PeopleHandler) : KafkaConsumer<String, String> {
     private companion object {
         const val PEOPLE_CHANNEL = "people"

@@ -5,6 +5,22 @@
   "cache_ttl": "3600s",
   "timeout": "3s",
   "extra_config": {
+    "github_com/devopsfaith/krakend-opencensus": {
+      "exporters": {
+        "prometheus": {
+          "port": 8001,
+          "namespace": "krakend",
+          "tag_host": true,
+          "tag_path": true,
+          "tag_method": true,
+          "tag_statuscode": true
+        },
+        "jaeger": {
+          "endpoint": "http://jaeger:14268/api/traces",
+          "service_name": "api-gateway"
+        }
+      }
+    },
     "github_com/devopsfaith/krakend-gologging": {
       "level": "DEBUG",
       "prefix": "[KRAKEND]",
@@ -69,7 +85,9 @@
       ],
       "backend": [
         {
-          "host": ["http://movies:8080"],
+          "host": [
+            "http://movies:8080"
+          ],
           "url_pattern": "/api/movies",
           "encoding": "no-op"
         }
@@ -86,7 +104,9 @@
       ],
       "backend": [
         {
-          "host": ["http://movies:8080"],
+          "host": [
+            "http://movies:8080"
+          ],
           "url_pattern": "/api/movies/{id}",
           "encoding": "no-op"
         }
@@ -103,7 +123,9 @@
       ],
       "backend": [
         {
-          "host": ["http://movies:8080"],
+          "host": [
+            "http://movies:8080"
+          ],
           "url_pattern": "/api/movies",
           "encoding": "no-op"
         }
@@ -120,7 +142,9 @@
       ],
       "backend": [
         {
-          "host": ["http://movies:8080"],
+          "host": [
+            "http://movies:8080"
+          ],
           "url_pattern": "/api/movies/{id}",
           "encoding": "no-op"
         }
@@ -137,7 +161,9 @@
       ],
       "backend": [
         {
-          "host": ["http://movies:8080"],
+          "host": [
+            "http://movies:8080"
+          ],
           "url_pattern": "/api/movies/{id}",
           "encoding": "no-op"
         }
@@ -154,7 +180,9 @@
       ],
       "backend": [
         {
-          "host": ["http://people:8080"],
+          "host": [
+            "http://people:8080"
+          ],
           "url_pattern": "/api/people",
           "encoding": "no-op"
         }
@@ -171,7 +199,9 @@
       ],
       "backend": [
         {
-          "host": ["http://people:8080"],
+          "host": [
+            "http://people:8080"
+          ],
           "url_pattern": "/api/people/{id}",
           "encoding": "no-op"
         }
@@ -188,7 +218,9 @@
       ],
       "backend": [
         {
-          "host": ["http://people:8080"],
+          "host": [
+            "http://people:8080"
+          ],
           "url_pattern": "/api/people",
           "encoding": "no-op"
         }
@@ -205,7 +237,9 @@
       ],
       "backend": [
         {
-          "host": ["http://people:8080"],
+          "host": [
+            "http://people:8080"
+          ],
           "url_pattern": "/api/people/{id}",
           "encoding": "no-op"
         }
@@ -222,7 +256,9 @@
       ],
       "backend": [
         {
-          "host": ["http://people:8080"],
+          "host": [
+            "http://people:8080"
+          ],
           "url_pattern": "/api/people/{id}",
           "encoding": "no-op"
         }

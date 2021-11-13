@@ -8,12 +8,14 @@ import dev.goncalomartins.cinematography.common.service.PersonService
 import dev.goncalomartins.cinematography.common.util.DatabaseUtils
 import dev.goncalomartins.cinematography.consumer.exception.EventAlreadyConsumedException
 import io.smallrye.mutiny.Uni
+import org.eclipse.microprofile.opentracing.Traced
 import org.neo4j.driver.reactive.RxTransaction
 import org.slf4j.LoggerFactory
 import java.util.function.BiFunction
 import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
+@Traced
 class PeopleHandler(
     val databaseUtils: DatabaseUtils,
     val inboxService: InboxService,

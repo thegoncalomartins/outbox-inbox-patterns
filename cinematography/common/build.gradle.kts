@@ -15,6 +15,7 @@ dependencies {
     implementation("io.quarkus:quarkus-kotlin")
     implementation("io.quarkus:quarkus-arc")
     api("io.quarkus:quarkus-neo4j")
+    api("io.quarkus:quarkus-smallrye-opentracing")
     implementation("io.vertx:vertx-core:$vertxCoreVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion")
     testImplementation("io.quarkus:quarkus-junit5")

@@ -152,6 +152,7 @@ services:
     ports:
       - 8090:8090
       - 8000:8000
+      - 8001:8001
     volumes:
       - ./krakend.json:/etc/krakend/krakend.json
     depends_on:
@@ -166,6 +167,10 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - 9090:9090
+    depends_on:
+      - movies
+      - people
+      - api-gateway
 
   grafana:
     image: grafana/grafana

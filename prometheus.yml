@@ -10,3 +10,7 @@ scrape_configs:
     metrics_path: /q/metrics
     static_configs:
       - targets: ['movies:8080']
+  - job_name: 'api-gateway'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['api-gateway:8001']

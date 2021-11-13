@@ -8,11 +8,13 @@ import dev.goncalomartins.cinematography.common.service.MovieService
 import dev.goncalomartins.cinematography.common.util.DatabaseUtils
 import dev.goncalomartins.cinematography.consumer.exception.EventAlreadyConsumedException
 import io.smallrye.mutiny.Uni
+import org.eclipse.microprofile.opentracing.Traced
 import org.neo4j.driver.reactive.RxTransaction
 import java.util.function.BiFunction
 import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
+@Traced
 class MoviesHandler(
     val databaseUtils: DatabaseUtils,
     val inboxService: InboxService,
