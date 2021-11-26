@@ -1,0 +1,28 @@
+apiVersion: 1
+
+# datasources:
+#   - name: InfluxDB
+#     type: influxdb
+#     access: proxy
+#     orgId: 1
+#     url: http://influx-db:8086
+#     secureJsonData:
+#       token: admin-token
+#     jsonData:
+#       version: Flux
+#       organization: goncalomartins
+#       defaultBucket: api-gateway-v18
+#       tlsSkipVerify: true
+
+datasources:
+  - name: InfluxDB
+    type: influxdb
+    access: proxy
+    orgId: 1
+    database: apigateway
+    user: admin
+    url: http://influx-db:8086
+    jsonData:
+      httpMode: GET
+    secureJsonData:
+      password: admin-password

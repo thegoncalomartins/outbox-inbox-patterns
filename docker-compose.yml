@@ -158,6 +158,8 @@ services:
     depends_on:
       - movies
       - people
+      - influx-db
+      - jaeger
 
   prometheus:
     image: prom/prometheus
@@ -172,12 +174,25 @@ services:
       - people
       - api-gateway
 
+  influx-db:
+    image: influxdb:1.8
+    container_name: influx-db
+    hostname: influx-db
+    environment:
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=admin-password
+      - INFLUXDB_DB=apigateway
+    ports:
+      - 8086:8086
+
   grafana:
     image: grafana/grafana
     container_name: grafana
     hostname: grafana
     depends_on:
       - prometheus
+      - influx-db
+      - jaeger
     volumes:
       - ./grafana/dashboards:/var/lib/grafana/dashboards
       - ./grafana/provisioning:/etc/grafana/provisioning

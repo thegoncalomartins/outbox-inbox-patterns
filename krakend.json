@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "Gateway",
+  "name": "API Gateway",
   "port": 8090,
   "cache_ttl": "3600s",
   "timeout": "3s",
@@ -9,7 +9,7 @@
       "exporters": {
         "prometheus": {
           "port": 8001,
-          "namespace": "krakend",
+          "namespace": "api_gateway",
           "tag_host": true,
           "tag_path": true,
           "tag_method": true,
@@ -20,6 +20,14 @@
           "service_name": "api-gateway"
         }
       }
+    },
+    "github_com/letgoapp/krakend-influx": {
+      "address": "http://influx-db:8086",
+      "ttl": "25s",
+      "buffer_size": 0,
+      "db": "apigateway",
+      "username": "admin",
+      "password": "admin-password"
     },
     "github_com/devopsfaith/krakend-gologging": {
       "level": "DEBUG",

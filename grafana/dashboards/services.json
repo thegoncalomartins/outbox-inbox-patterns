@@ -3164,6 +3164,6 @@
     ]
   },
   "timezone": "browser",
-  "title": "JVM (Micrometer)",
+  "title": "Services",
   "version": 24
 }
