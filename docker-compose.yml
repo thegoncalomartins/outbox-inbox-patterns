@@ -10,14 +10,18 @@ services:
       RUNTESTS: 0                                             # Disable Running tests so the cluster starts faster
       SAMPLEDATA: 0                                           # Disable sample data topic creation
       RUNNING_SAMPLEDATA: 0                                   # Disable sample data
+      BROKER_OPTS: '-javaagent:/root/jmx_prometheus_javaagent-0.16.1.jar=7071:/root/kafka_broker.yml -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false'
+      CONNECT_OPTS: '-javaagent:/root/jmx_prometheus_javaagent-0.16.1.jar=7072:/root/kafka_connect.yml -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false'
     ports:
+      - 7071-7072:7071-7072
       - 2181:2181                                             # Zookeeper
       - 3030:3030                                             # Landoop UI
       - 8091-8093:8081-8083                                   # REST Proxy, Schema Registry, & Kafka Connect
       - 9581-9585:9581-9585                                   # JMX Ports
       - 9092:9092                                             # Kafka Broker
     volumes:
-      - ./debezium-connector-mongodb:/connectors/debezium-connector-mongodb
+      - ./kafka/connectors/debezium-connector-mongodb:/connectors/debezium-connector-mongodb
+      - ./kafka/observability:/root
 
   movies-db-primary:
     image: bitnami/mongodb:5.0.3

@@ -10,6 +10,11 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets: ['api-gateway:8001']
+  - job_name: 'kafka'
+    scrape_timeout: 15s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['kafka:7071', 'kafka:7072']
   - job_name: 'jaeger'
     metrics_path: /metrics
     static_configs:
