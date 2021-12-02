@@ -102,22 +102,26 @@ services:
       - people-db-secondary
 
   cinematography-db:
-    image: neo4j:4.1.9
+    image: neo4j:enterprise
     container_name: cinematography-db
     hostname: cinematography-db
     environment:
-      NEO4J_AUTH: "neo4j/HNxzZk7GBNcKv5kW"
+      NEO4J_ACCEPT_LICENSE_AGREEMENT: "yes"
+      NEO4J_AUTH: neo4j/HNxzZk7GBNcKv5kW
+      NEO4J_metrics_prometheus_enabled: "true"
+      NEO4J_metrics_prometheus_endpoint: 0.0.0.0:2004
     ports:
+      - 2004:2004 # Metrics
       - 7474:7474 # HTTP
       - 7687:7687 # BOLT
 
-  movies:
+  movies-api:
     build:
       context: ./movies
       target: RUN
       dockerfile: ./src/main/docker/Dockerfile.jvm
-    container_name: movies
-    hostname: movies
+    container_name: movies-api
+    hostname: movies-api
     ports:
       - 8080:8080
     depends_on:
@@ -125,13 +129,13 @@ services:
       - movies-db-secondary
       - movies-db-arbiter
 
-  people:
+  people-api:
     build:
       context: ./people
       target: RUN
       dockerfile: ./src/main/docker/Dockerfile.jvm
-    container_name: people
-    hostname: people
+    container_name: people-api
+    hostname: people-api
     ports:
       - 8081:8080
     depends_on:
@@ -158,10 +162,10 @@ services:
       - 8000:8000
       - 8001:8001
     volumes:
-      - ./krakend.json:/etc/krakend/krakend.json
+      - ./gateway/krakend.json:/etc/krakend/krakend.json
     depends_on:
-      - movies
-      - people
+      - movies-api
+      - people-api
       - influx-db
       - jaeger
 
@@ -170,22 +174,25 @@ services:
     container_name: prometheus
     hostname: prometheus
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - 9090:9090
     depends_on:
-      - movies
-      - people
+      - movies-api
+      - people-api
       - api-gateway
+      - cinematography-db
+      - mongodb-people-exporter
+      - mongodb-movies-exporter
 
   influx-db:
     image: influxdb:1.8
     container_name: influx-db
     hostname: influx-db
     environment:
-      - INFLUXDB_ADMIN_USER=admin
-      - INFLUXDB_ADMIN_PASSWORD=admin-password
-      - INFLUXDB_DB=apigateway
+      INFLUXDB_ADMIN_USER: admin
+      INFLUXDB_ADMIN_PASSWORD: admin-password
+      INFLUXDB_DB: apigateway
     ports:
       - 8086:8086
 
@@ -214,3 +221,25 @@ services:
       - 5778:5778
       - 16686:16686
       - 14268:14268
+
+  mongodb-people-exporter:
+    image: bitnami/mongodb-exporter
+    container_name: mongodb-people-exporter
+    hostname: mongodb-people-exporter
+    environment:
+      MONGODB_URI: mongodb://root:v5au8MVCvgh5BpSJ@people-db-primary:27017
+    ports: 
+      - 9216:9216
+    depends_on:
+      - people-db-primary
+
+  mongodb-movies-exporter:
+    image: bitnami/mongodb-exporter
+    container_name: mongodb-movies-exporter
+    hostname: mongodb-movies-exporter
+    environment:
+      MONGODB_URI: mongodb://root:xH8Tw7Ug8ApgEC2b@movies-db-primary:27017
+    ports: 
+      - 9217:9216
+    depends_on:
+      - movies-db-primary

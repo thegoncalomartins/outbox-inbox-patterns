@@ -2,10 +2,22 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
   - job_name: 'services'
     metrics_path: /q/metrics
     static_configs:
-      - targets: ['people:8080', 'movies:8080']
+      - targets: ['people-api:8080', 'movies-api:8080']
+  - job_name: 'databases (mongodb)'
+    scrape_timeout: 15s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['mongodb-people-exporter:9216', 'mongodb-movies-exporter:9216']
+  - job_name: 'databases (neo4j)'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['cinematography-db:2004']
   - job_name: 'api-gateway'
     metrics_path: /metrics
     static_configs:

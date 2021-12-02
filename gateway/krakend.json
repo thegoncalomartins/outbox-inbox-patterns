@@ -94,7 +94,7 @@
       "backend": [
         {
           "host": [
-            "http://movies:8080"
+            "http://movies-api:8080"
           ],
           "url_pattern": "/api/movies",
           "encoding": "no-op"
@@ -113,7 +113,7 @@
       "backend": [
         {
           "host": [
-            "http://movies:8080"
+            "http://movies-api:8080"
           ],
           "url_pattern": "/api/movies/{id}",
           "encoding": "no-op"
@@ -132,7 +132,7 @@
       "backend": [
         {
           "host": [
-            "http://movies:8080"
+            "http://movies-api:8080"
           ],
           "url_pattern": "/api/movies",
           "encoding": "no-op"
@@ -151,7 +151,7 @@
       "backend": [
         {
           "host": [
-            "http://movies:8080"
+            "http://movies-api:8080"
           ],
           "url_pattern": "/api/movies/{id}",
           "encoding": "no-op"
@@ -170,7 +170,7 @@
       "backend": [
         {
           "host": [
-            "http://movies:8080"
+            "http://movies-api:8080"
           ],
           "url_pattern": "/api/movies/{id}",
           "encoding": "no-op"
@@ -189,7 +189,7 @@
       "backend": [
         {
           "host": [
-            "http://people:8080"
+            "http://people-api:8080"
           ],
           "url_pattern": "/api/people",
           "encoding": "no-op"
@@ -208,7 +208,7 @@
       "backend": [
         {
           "host": [
-            "http://people:8080"
+            "http://people-api:8080"
           ],
           "url_pattern": "/api/people/{id}",
           "encoding": "no-op"
@@ -227,7 +227,7 @@
       "backend": [
         {
           "host": [
-            "http://people:8080"
+            "http://people-api:8080"
           ],
           "url_pattern": "/api/people",
           "encoding": "no-op"
@@ -246,7 +246,7 @@
       "backend": [
         {
           "host": [
-            "http://people:8080"
+            "http://people-api:8080"
           ],
           "url_pattern": "/api/people/{id}",
           "encoding": "no-op"
@@ -265,7 +265,7 @@
       "backend": [
         {
           "host": [
-            "http://people:8080"
+            "http://people-api:8080"
           ],
           "url_pattern": "/api/people/{id}",
           "encoding": "no-op"

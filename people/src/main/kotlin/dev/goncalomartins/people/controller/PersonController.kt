@@ -19,6 +19,7 @@ import io.smallrye.mutiny.Uni
 import org.eclipse.microprofile.opentracing.Traced
 import org.jboss.resteasy.reactive.RestResponse
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper
+import org.slf4j.LoggerFactory
 import javax.ws.rs.Consumes
 import javax.ws.rs.DELETE
 import javax.ws.rs.DefaultValue
@@ -48,6 +49,8 @@ class PersonController(
         const val SKIP_PARAMETER = "skip"
         const val ID_PARAMETER = "id"
     }
+
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Counted(value = "api.people.findAll.count", description = "How many times GET /api/people has been requested")
     @Timed(value = "api.people.findAll.time", description = "Response time for GET /api/people")
@@ -107,7 +110,7 @@ class PersonController(
                 Response.Status.NOT_FOUND,
                 ErrorDto(Response.Status.NOT_FOUND.statusCode.toString(), exception.message!!)
             )
-        )
+        ).invoke { _ -> logger.debug(exception.message, exception) }
 
     @ServerExceptionMapper
     fun mapException(exception: Exception): Uni<RestResponse<ErrorDto>> =
@@ -119,7 +122,7 @@ class PersonController(
                     exception.message ?: "Unexpected error"
                 )
             )
-        )
+        ).invoke { _ -> logger.error(exception.message, exception) }
 
     private fun toDto(movie: Person) = movie.toDto(
         links = mapOf(
