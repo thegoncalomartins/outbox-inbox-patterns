@@ -30,6 +30,7 @@ import javax.ws.rs.Produces
 import javax.ws.rs.QueryParam
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
+import org.slf4j.LoggerFactory
 
 @Path(PATH)
 @Produces(MediaType.APPLICATION_JSON)
@@ -47,6 +48,8 @@ class MovieController(
         const val SKIP_PARAMETER = "skip"
         const val ID_PARAMETER = "id"
     }
+
+    private val logger = LoggerFactory.getLogger(javaClass)
 
     @Counted(value = "api.movies.findAll.count", description = "How many times GET /api/movies has been requested")
     @Timed(value = "api.movies.findAll.time", description = "Response time for GET /api/movies")
@@ -106,7 +109,7 @@ class MovieController(
                 Response.Status.NOT_FOUND,
                 ErrorDto(Response.Status.NOT_FOUND.statusCode.toString(), exception.message!!)
             )
-        )
+        ).invoke { _ -> logger.debug(exception.message, exception) }
 
     @ServerExceptionMapper
     fun mapException(exception: Exception): Uni<RestResponse<ErrorDto>> =
@@ -118,7 +121,7 @@ class MovieController(
                     exception.message ?: "Unexpected error"
                 )
             )
-        )
+        ).invoke { _ -> logger.error(exception.message, exception) }
 
     private fun toDto(movie: Movie) = movie.toDto(
         links = mapOf(

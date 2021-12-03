@@ -30,12 +30,14 @@ class ControllerUtils(
             }.buildFromMap(uriVariables)
     )
 
-    fun calculateFirst(limit: Int) = mapOf("limit" to limit.toString(), "skip" to 0.toString())
+    fun calculateFirst(limit: Int) = mapOf("limit" to limit.toString(), "skip" to "0")
 
     fun calculatePrevious(limit: Int, skip: Int) =
         mapOf("limit" to limit.toString(), "skip" to (skip - limit).coerceAtLeast(0).toString())
 
-    fun calculateNext(total: Long, limit: Int, skip: Int) = mapOf("limit" to limit.toString(), "skip" to (skip + limit).coerceAtMost(total.toInt()).toString())
+    fun calculateNext(total: Long, limit: Int, skip: Int) =
+        mapOf("limit" to limit.toString(), "skip" to (skip + limit).coerceAtMost(total.toInt()).toString())
 
-    fun calculateLast(total: Long, limit: Int) = mapOf("limit" to limit.toString(), "skip" to (total - limit).coerceAtLeast(0).toString())
+    fun calculateLast(total: Long, limit: Int) =
+        mapOf("limit" to limit.toString(), "skip" to (total - limit).coerceAtLeast(0).toString())
 }
