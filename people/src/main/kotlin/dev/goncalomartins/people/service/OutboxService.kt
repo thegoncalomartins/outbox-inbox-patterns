@@ -11,7 +11,7 @@ import javax.enterprise.context.ApplicationScoped
 @ApplicationScoped
 @Traced
 class OutboxService(
-    var repository: OutboxRepository
+    val repository: OutboxRepository
 ) {
     fun emitEvent(eventType: EventType, payload: IPayload): Uni<Void> = repository.persist(
         OutboxEvent(

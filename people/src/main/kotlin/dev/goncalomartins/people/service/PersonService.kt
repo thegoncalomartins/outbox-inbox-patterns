@@ -13,8 +13,8 @@ import javax.transaction.Transactional
 @ApplicationScoped
 @Traced
 class PersonService(
-    var repository: PersonRepository,
-    var outboxService: OutboxService
+    val repository: PersonRepository,
+    val outboxService: OutboxService
 ) {
 
     companion object {
@@ -23,16 +23,16 @@ class PersonService(
     }
 
     @Transactional
-    fun create(movie: Person): Uni<Person> = repository.persist(movie)
-        .flatMap { newMovie -> outboxService.emitEvent(EventType.CREATED, newMovie).map { newMovie } }
+    fun create(person: Person): Uni<Person> = repository.persist(person)
+        .flatMap { newPerson -> outboxService.emitEvent(EventType.CREATED, newPerson).map { newPerson } }
 
     @Transactional
-    fun update(movie: Person): Uni<Person> = repository
-        .update(movie)
+    fun update(person: Person): Uni<Person> = repository
+        .update(person)
         .onItem()
         .ifNull()
-        .failWith(PersonNotFoundException(movie.id!!.toHexString()))
-        .flatMap { updatedMovie -> outboxService.emitEvent(EventType.UPDATED, updatedMovie).map { updatedMovie } }
+        .failWith(PersonNotFoundException(person.id!!.toHexString()))
+        .flatMap { updatedPerson -> outboxService.emitEvent(EventType.UPDATED, updatedPerson).map { updatedPerson } }
 
     fun findAll(limit: Int = DEFAULT_LIMIT, skip: Int = DEFAULT_SKIP): Uni<People> = repository.count()
         .flatMap { total ->
@@ -55,7 +55,7 @@ class PersonService(
             .onItem()
             .ifNull()
             .failWith(PersonNotFoundException(id))
-            .flatMap { movie -> outboxService.emitEvent(EventType.DELETED, movie).map { movie } }
+            .flatMap { person -> outboxService.emitEvent(EventType.DELETED, person).map { person } }
             .onItem()
             .ignore()
             .andContinueWithNull()

@@ -8,7 +8,6 @@ import org.bson.codecs.pojo.annotations.BsonProperty
 import org.bson.types.ObjectId
 import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 
 @MongoEntity(collection = "people")
 class Person() : IPayload {

@@ -38,8 +38,8 @@ import javax.ws.rs.core.Response
 @Consumes(MediaType.APPLICATION_JSON)
 @Traced
 class PersonController(
-    var movieService: PersonService,
-    var controllerUtils: ControllerUtils
+    val personService: PersonService,
+    val controllerUtils: ControllerUtils
 ) {
 
     companion object {
@@ -59,7 +59,7 @@ class PersonController(
         @QueryParam(LIMIT_PARAMETER) @DefaultValue(DEFAULT_LIMIT.toString()) limit: Int,
         @QueryParam(SKIP_PARAMETER) @DefaultValue(DEFAULT_SKIP.toString()) skip: Int
     ): Uni<RestResponse<CollectionDto<PersonDto>>> =
-        movieService.findAll()
+        personService.findAll()
             .map { RestResponse.ok(toDto(total = it.total, limit = limit, skip = skip, people = it.people)) }
 
     @Counted(value = "api.people.findOne.count", description = "How many times GET /api/people/{id} has been requested")
@@ -67,14 +67,14 @@ class PersonController(
     @GET
     @Path("/{id}")
     fun findOne(@PathParam(ID_PARAMETER) id: String): Uni<RestResponse<PersonDto>> =
-        movieService.findOne(id).map { RestResponse.ok(toDto(it)) }
+        personService.findOne(id).map { RestResponse.ok(toDto(it)) }
 
     @Counted(value = "api.people.create.count", description = "How many times POST /api/people has been requested")
     @Timed(value = "api.people.create.time", description = "Response time for POST /api/people")
     @POST
     @Blocking
-    fun create(movie: PersonDto): Uni<RestResponse<PersonDto>> =
-        movieService.create(movie.toModel())
+    fun create(person: PersonDto): Uni<RestResponse<PersonDto>> =
+        personService.create(person.toModel())
             .map {
                 RestResponse.ResponseBuilder.create(Response.Status.CREATED, toDto(it)).location(
                     controllerUtils.buildLink(
@@ -89,8 +89,8 @@ class PersonController(
     @PUT
     @Path("/{id}")
     @Blocking
-    fun update(@PathParam(ID_PARAMETER) id: String, movie: PersonDto): Uni<RestResponse<PersonDto>> =
-        movieService.update(movie.toModel(id)).map { RestResponse.ok(toDto(it)) }
+    fun update(@PathParam(ID_PARAMETER) id: String, person: PersonDto): Uni<RestResponse<PersonDto>> =
+        personService.update(person.toModel(id)).map { RestResponse.ok(toDto(it)) }
 
     @Counted(
         value = "api.people.delete.count",
@@ -100,7 +100,7 @@ class PersonController(
     @DELETE
     @Path("/{id}")
     @Blocking
-    fun delete(@PathParam(ID_PARAMETER) id: String): Uni<RestResponse<Void>> = movieService.delete(id)
+    fun delete(@PathParam(ID_PARAMETER) id: String): Uni<RestResponse<Void>> = personService.delete(id)
         .map { RestResponse.noContent() }
 
     @ServerExceptionMapper
@@ -124,11 +124,11 @@ class PersonController(
             )
         ).invoke { _ -> logger.error(exception.message, exception) }
 
-    private fun toDto(movie: Person) = movie.toDto(
+    private fun toDto(person: Person) = person.toDto(
         links = mapOf(
             "self" to controllerUtils.buildLink(
                 path = PATH_FOR_ONE,
-                uriVariables = mapOf("id" to movie.id!!.toHexString())
+                uriVariables = mapOf("id" to person.id!!.toHexString())
             )
         )
     )
