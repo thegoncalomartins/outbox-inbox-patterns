@@ -13,8 +13,8 @@ import javax.transaction.Transactional
 @ApplicationScoped
 @Traced
 class MovieService(
-    var repository: MovieRepository,
-    var outboxService: OutboxService
+    val repository: MovieRepository,
+    val outboxService: OutboxService
 ) {
 
     companion object {

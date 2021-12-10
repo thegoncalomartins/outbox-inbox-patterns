@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import dev.goncalomartins.movies.dto.hypermedia.Dto
 import dev.goncalomartins.movies.dto.hypermedia.Link
+import dev.goncalomartins.movies.model.movie.Actor
 import dev.goncalomartins.movies.model.movie.Movie
-import dev.goncalomartins.movies.model.movie.Role
 import org.bson.types.ObjectId
 import java.time.Instant
 
@@ -17,7 +17,7 @@ class MovieDto(
     val title: String,
     val released: Int,
     val directedBy: Set<String>? = emptySet(),
-    val cast: Set<RoleDto>? = emptySet(),
+    val cast: Set<ActorDto>? = emptySet(),
     val createdAt: Instant?,
     val updatedAt: Instant?,
     links: Map<String, Link>? = null
@@ -27,24 +27,24 @@ class MovieDto(
         title = title,
         released = released,
         directedBy = directedBy ?: emptySet(),
-        cast = cast?.map(RoleDto::toRole)?.toSet() ?: emptySet()
+        cast = cast?.map(ActorDto::toActor)?.toSet() ?: emptySet()
     )
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-data class RoleDto(val personId: String?, val role: String?) {
-    fun toRole() = Role(personId!!, role!!)
+data class ActorDto(val personId: String?, val role: String?) {
+    fun toActor() = Actor(personId!!, role!!)
 }
 
-fun Role.toDto() = RoleDto(personId = personId, role = role)
+fun Actor.toDto() = ActorDto(personId = personId, role = role)
 
 fun Movie.toDto(links: Map<String, Link>) = MovieDto(
     id = id?.toHexString(),
     title = title,
     released = released,
     directedBy = directedBy,
-    cast = cast.map(Role::toDto).toSet(),
+    cast = cast.map(Actor::toDto).toSet(),
     links = links,
     createdAt = createdAt,
     updatedAt = updatedAt

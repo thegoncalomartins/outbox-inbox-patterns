@@ -3,7 +3,7 @@ package dev.goncalomartins.movies.model.movie
 import io.vertx.core.json.JsonObject
 import org.bson.codecs.pojo.annotations.BsonProperty
 
-class Role() {
+class Actor() {
     @BsonProperty("person_id")
     lateinit var personId: String
 

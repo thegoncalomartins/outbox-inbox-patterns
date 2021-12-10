@@ -18,6 +18,7 @@ import io.smallrye.mutiny.Uni
 import org.eclipse.microprofile.opentracing.Traced
 import org.jboss.resteasy.reactive.RestResponse
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper
+import org.slf4j.LoggerFactory
 import javax.ws.rs.Consumes
 import javax.ws.rs.DELETE
 import javax.ws.rs.DefaultValue
@@ -30,15 +31,14 @@ import javax.ws.rs.Produces
 import javax.ws.rs.QueryParam
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
-import org.slf4j.LoggerFactory
 
 @Path(PATH)
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Traced
 class MovieController(
-    var movieService: MovieService,
-    var controllerUtils: ControllerUtils
+    val movieService: MovieService,
+    val controllerUtils: ControllerUtils
 ) {
 
     companion object {
