@@ -10,6 +10,7 @@ import javax.enterprise.context.ApplicationScoped
 @ApplicationScoped
 @Traced
 class MovieService(val movieRepository: MovieRepository) {
+
     fun save(transaction: RxTransaction, movie: Movie): Uni<Void> = movieRepository.save(transaction, movie)
 
     fun delete(transaction: RxTransaction, movie: Movie): Uni<Void> = movieRepository.delete(transaction, movie)

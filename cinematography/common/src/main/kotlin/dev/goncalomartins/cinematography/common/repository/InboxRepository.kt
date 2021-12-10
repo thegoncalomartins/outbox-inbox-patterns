@@ -2,12 +2,14 @@ package dev.goncalomartins.cinematography.common.repository
 
 import dev.goncalomartins.cinematography.common.model.inbox.InboxEvent
 import io.smallrye.mutiny.Uni
+import org.eclipse.microprofile.opentracing.Traced
 import org.neo4j.driver.reactive.RxTransaction
 import java.time.LocalDateTime
 import java.time.ZoneId
 import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
+@Traced
 class InboxRepository {
     private companion object {
         const val FIND_ONE_QUERY = "MATCH (event:InboxEvent) WHERE event.id = \$id RETURN event"

@@ -13,3 +13,4 @@ pluginManagement {
 rootProject.name = "cinematography"
 include("common")
 include("consumer")
+include("web")

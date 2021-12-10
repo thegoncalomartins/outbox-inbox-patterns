@@ -3,6 +3,7 @@ package dev.goncalomartins.cinematography.common.model.person
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
+import dev.goncalomartins.cinematography.common.model.graph.NodeMetadata
 import dev.goncalomartins.cinematography.common.model.inbox.InboxEvent
 import io.vertx.core.json.JsonObject
 import org.neo4j.driver.types.Node
@@ -18,7 +19,7 @@ data class Person(
     val birthDate: LocalDate?,
     val createdAt: Instant?,
     val updatedAt: Instant?
-) {
+) : NodeMetadata {
     companion object {
         fun fromInboxEvent(inboxEvent: InboxEvent): Person = JsonObject(inboxEvent.payload).mapTo(Person::class.java)
 

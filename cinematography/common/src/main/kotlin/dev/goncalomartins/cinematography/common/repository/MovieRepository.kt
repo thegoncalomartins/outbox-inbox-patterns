@@ -3,12 +3,14 @@ package dev.goncalomartins.cinematography.common.repository
 import dev.goncalomartins.cinematography.common.model.movie.Movie
 import io.smallrye.mutiny.Multi
 import io.smallrye.mutiny.Uni
+import org.eclipse.microprofile.opentracing.Traced
 import org.neo4j.driver.reactive.RxTransaction
 import java.time.LocalDateTime
 import java.time.ZoneId
 import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
+@Traced
 class MovieRepository {
     private companion object {
         const val CREATE_UPDATE_QUERY =

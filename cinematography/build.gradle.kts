@@ -11,6 +11,10 @@ repositories {
     mavenLocal()
 }
 
+val quarkusPlatformGroupId: String by project
+val quarkusPlatformArtifactId: String by project
+val quarkusPlatformVersion: String by project
+
 allprojects {
     group = "dev.goncalomartins"
     version = "1.0.0-SNAPSHOT"
@@ -37,8 +41,14 @@ subprojects {
     }
 
     val implementation by configurations
+    val testImplementation by configurations
 
     dependencies {
+        implementation(enforcedPlatform("$quarkusPlatformGroupId:$quarkusPlatformArtifactId:$quarkusPlatformVersion"))
+        implementation("io.quarkus:quarkus-smallrye-opentracing")
+        implementation("io.quarkus:quarkus-kotlin")
+        implementation("io.quarkus:quarkus-arc")
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+        testImplementation("io.quarkus:quarkus-junit5")
     }
 }
