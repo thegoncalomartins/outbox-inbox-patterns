@@ -18,8 +18,10 @@ class PersonService(val personRepository: PersonRepository, val databaseUtils: D
         const val DEFAULT_SKIP = 0
     }
 
-    fun findOne(transaction: RxTransaction, id: String, skip: Int, limit: Int): Uni<Graph> =
-        personRepository.findOne(transaction, id, skip, limit)
+    fun findOne(id: String, skip: Int, limit: Int): Uni<Graph> =
+        databaseUtils.inTransaction { transaction ->
+            personRepository.findOne(transaction, id, skip, limit)
+        }
 
     fun findAll(skip: Int, limit: Int): Uni<People> =
         databaseUtils.inTransaction { transaction ->

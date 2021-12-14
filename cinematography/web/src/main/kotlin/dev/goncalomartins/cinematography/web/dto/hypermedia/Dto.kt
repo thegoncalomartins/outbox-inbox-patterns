@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 @JsonInclude(JsonInclude.Include.NON_NULL)
 open class Dto<T>(
     @get:JsonProperty(value = "_embedded")
-    val embedded: Map<String, List<T>>? = null,
+    val embedded: Map<String, T>? = null,
 
     val total: Long? = null,
 

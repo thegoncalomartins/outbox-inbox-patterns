@@ -17,14 +17,21 @@ class PersonRepository {
     private companion object {
         const val FIND_ONE_QUERY =
             """
-                MATCH path=(p: Person {id: ${'$'}id})-[]-(m: Movie)
+                MATCH path=(p: Person {id: ${'$'}id})<-[]-(m: Movie)
                 RETURN path ORDER BY p.updated_at DESC SKIP ${'$'}skip LIMIT ${'$'}limit
             """
 
-        const val COUNT_QUERY = """
-            MATCH (person: Person)
-            RETURN count(person) as count
-        """
+        const val COUNT_ONE_QUERY =
+            """
+                MATCH path=(p: Person {id: ${'$'}id})<-[]-(m: Movie)
+                RETURN count(path) as count
+            """
+
+        const val COUNT_ALL_QUERY =
+            """
+                MATCH (person: Person)
+                RETURN count(person) as count
+            """
 
         const val FIND_ALL_QUERY =
             """
@@ -62,11 +69,9 @@ class PersonRepository {
                     .createFrom()
                     .publisher(
                         transaction.run(
-                            FIND_ONE_QUERY,
+                            prepareQuery(FIND_ONE_QUERY, mapOf("skip" to skip.toString(), "limit" to limit.toString())),
                             mapOf(
-                                "id" to id,
-                                "skip" to skip.toString(),
-                                "limit" to limit.toString()
+                                "id" to id
                             )
                         ).records()
                     )
@@ -75,17 +80,17 @@ class PersonRepository {
                     .asList()
                     .map { graph }
             }
+            .flatMap { graph ->
+                countOne(transaction, id)
+                    .map { total -> graph.total(total) }
+            }
 
     fun findAll(transaction: RxTransaction, skip: Int, limit: Int): Multi<Person> =
         Multi
             .createFrom()
             .publisher(
                 transaction.run(
-                    FIND_ALL_QUERY,
-                    mapOf(
-                        "skip" to skip.toString(),
-                        "limit" to limit.toString()
-                    )
+                    prepareQuery(FIND_ALL_QUERY, mapOf("skip" to skip.toString(), "limit" to limit.toString()))
                 ).records()
             ).map { record -> Person.fromNode(record["person"].asNode()) }
 
@@ -94,7 +99,7 @@ class PersonRepository {
             .createFrom()
             .publisher(
                 transaction.run(
-                    COUNT_QUERY
+                    COUNT_ALL_QUERY
                 ).records()
             ).map { record -> record["count"].asLong() }
 
@@ -129,4 +134,26 @@ class PersonRepository {
             ).onItem()
             .ignore()
             .andContinueWithNull()
+
+    private fun countOne(transaction: RxTransaction, id: String): Uni<Long> =
+        Uni
+            .createFrom()
+            .publisher(
+                transaction.run(
+                    COUNT_ONE_QUERY,
+                    mapOf(
+                        "id" to id
+                    )
+                ).records()
+            ).map { record -> record["count"].asLong() }
+
+    private fun prepareQuery(query: String, params: Map<String, String>): String {
+        var newQuery = query
+
+        params.forEach { key, value ->
+            newQuery = newQuery.replace("\$$key", value)
+        }
+
+        return newQuery
+    }
 }
