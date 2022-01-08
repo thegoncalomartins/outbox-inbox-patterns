@@ -8,7 +8,12 @@ scrape_configs:
   - job_name: 'services'
     metrics_path: /q/metrics
     static_configs:
-      - targets: ['people-api:8080', 'movies-api:8080']
+      - targets: ['people-api:8080', 'movies-api:8080', 'cinematography-api:8080']
+  - job_name: pushgateway
+    honor_labels: true
+    metrics_path: /metrics
+    static_configs:
+    - targets: ['pushgateway:9091']
   - job_name: 'databases (mongodb)'
     scrape_timeout: 15s
     metrics_path: /metrics

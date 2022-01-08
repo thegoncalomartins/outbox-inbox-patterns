@@ -83,6 +83,82 @@
   },
   "endpoints": [
     {
+      "endpoint": "/api/cinematography/movies",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "headers_to_pass": [
+        "Content-Type",
+        "Content-Length",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "host": [
+            "http://cinematography-api:8080"
+          ],
+          "url_pattern": "/api/cinematography/movies",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/cinematography/movies/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "headers_to_pass": [
+        "Content-Type",
+        "Content-Length",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "host": [
+            "http://cinematography-api:8080"
+          ],
+          "url_pattern": "/api/cinematography/movies/{id}",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/cinematography/people",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "headers_to_pass": [
+        "Content-Type",
+        "Content-Length",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "host": [
+            "http://cinematography-api:8080"
+          ],
+          "url_pattern": "/api/cinematography/people",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/cinematography/people/{id}",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "headers_to_pass": [
+        "Content-Type",
+        "Content-Length",
+        "Accept"
+      ],
+      "backend": [
+        {
+          "host": [
+            "http://cinematography-api:8080"
+          ],
+          "url_pattern": "/api/cinematography/people/{id}",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
       "endpoint": "/api/movies",
       "method": "GET",
       "output_encoding": "no-op",

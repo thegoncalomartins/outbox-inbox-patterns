@@ -1,16 +1,16 @@
 package dev.goncalomartins.cinematography.web.controller
 
 import dev.goncalomartins.cinematography.common.model.graph.Graph
-import dev.goncalomartins.cinematography.common.model.person.Person
-import dev.goncalomartins.cinematography.common.service.PersonService
-import dev.goncalomartins.cinematography.common.service.PersonService.Companion.DEFAULT_LIMIT
-import dev.goncalomartins.cinematography.common.service.PersonService.Companion.DEFAULT_SKIP
-import dev.goncalomartins.cinematography.web.controller.PersonController.Companion.PATH
+import dev.goncalomartins.cinematography.common.model.movie.Movie
+import dev.goncalomartins.cinematography.common.service.MovieService
+import dev.goncalomartins.cinematography.common.service.MovieService.Companion.DEFAULT_LIMIT
+import dev.goncalomartins.cinematography.common.service.MovieService.Companion.DEFAULT_SKIP
+import dev.goncalomartins.cinematography.web.controller.MovieController.Companion.PATH
 import dev.goncalomartins.cinematography.web.dto.graph.GraphDto
 import dev.goncalomartins.cinematography.web.dto.graph.toDto
 import dev.goncalomartins.cinematography.web.dto.hypermedia.CollectionDto
-import dev.goncalomartins.cinematography.web.dto.person.PersonDto
-import dev.goncalomartins.cinematography.web.dto.person.toDto
+import dev.goncalomartins.cinematography.web.dto.movie.MovieDto
+import dev.goncalomartins.cinematography.web.dto.movie.toDto
 import dev.goncalomartins.cinematography.web.util.ControllerUtils
 import io.micrometer.core.annotation.Counted
 import io.micrometer.core.annotation.Timed
@@ -28,41 +28,41 @@ import javax.ws.rs.core.MediaType
 @Path(PATH)
 @Produces(MediaType.APPLICATION_JSON)
 @Traced
-class PersonController(
-    val personService: PersonService,
+class MovieController(
+    val movieService: MovieService,
     val controllerUtils: ControllerUtils
 ) {
     companion object {
-        const val PATH = "/api/cinematography/people"
-        const val PATH_FOR_ONE = "/api/cinematography/people/{id}"
+        const val PATH = "/api/cinematography/movies"
+        const val PATH_FOR_ONE = "/api/cinematography/movies/{id}"
         const val LIMIT_PARAMETER = "limit"
         const val SKIP_PARAMETER = "skip"
         const val ID_PARAMETER = "id"
     }
 
     @Counted(
-        value = "api.cinematography.people.findAll.count",
-        description = "How many times GET /api/cinematography/people has been requested"
+        value = "api.cinematography.movies.findAll.count",
+        description = "How many times GET /api/cinematography/movies has been requested"
     )
     @Timed(
-        value = "api.cinematography.people.findAll.time",
-        description = "Response time for GET /api/cinematography/people"
+        value = "api.cinematography.movies.findAll.time",
+        description = "Response time for GET /api/cinematography/movies"
     )
     @GET
     fun findAll(
         @QueryParam(LIMIT_PARAMETER) @DefaultValue(DEFAULT_LIMIT.toString()) limit: Int,
         @QueryParam(SKIP_PARAMETER) @DefaultValue(DEFAULT_SKIP.toString()) skip: Int
-    ): Uni<RestResponse<CollectionDto<List<PersonDto>>>> =
-        personService.findAll(skip, limit)
-            .map { RestResponse.ok(toDto(total = it.total, limit = limit, skip = skip, people = it.people)) }
+    ): Uni<RestResponse<CollectionDto<List<MovieDto>>>> =
+        movieService.findAll(skip, limit)
+            .map { RestResponse.ok(toDto(total = it.total, limit = limit, skip = skip, movies = it.movies)) }
 
     @Counted(
-        value = "api.cinematography.people.findOne.count",
-        description = "How many times GET /api/cinematography/people/{id} has been requested"
+        value = "api.cinematography.movies.findOne.count",
+        description = "How many times GET /api/cinematography/movies/{id} has been requested"
     )
     @Timed(
-        value = "api.cinematography.people.findOne.time",
-        description = "Response time for GET /api/cinematography/people/{id}"
+        value = "api.cinematography.movies.findOne.time",
+        description = "Response time for GET /api/cinematography/movies/{id}"
     )
     @GET
     @Path("/{id}")
@@ -71,21 +71,21 @@ class PersonController(
         @QueryParam(LIMIT_PARAMETER) @DefaultValue(DEFAULT_LIMIT.toString()) limit: Int,
         @QueryParam(SKIP_PARAMETER) @DefaultValue(DEFAULT_SKIP.toString()) skip: Int
     ): Uni<RestResponse<CollectionDto<GraphDto>>> =
-        personService.findOne(id, skip, limit)
-            .map { RestResponse.ok(toDto(total = it.total(), limit = limit, skip = skip, people = it)) }
+        movieService.findOne(id, skip, limit)
+            .map { RestResponse.ok(toDto(total = it.total(), limit = limit, skip = skip, movies = it)) }
 
-    private fun toDto(person: Person) = person.toDto(
+    private fun toDto(movie: Movie) = movie.toDto(
         links = mapOf(
             "self" to controllerUtils.buildLink(
                 path = PATH_FOR_ONE,
-                uriVariables = mapOf("id" to person.id)
+                uriVariables = mapOf("id" to movie.id)
             )
         )
     )
 
-    private fun toDto(total: Long, limit: Int = DEFAULT_LIMIT, skip: Int = DEFAULT_SKIP, people: List<Person>) =
+    private fun toDto(total: Long, limit: Int = DEFAULT_LIMIT, skip: Int = DEFAULT_SKIP, movies: List<Movie>) =
         CollectionDto(
-            embedded = mapOf("people" to people.map { toDto(it) }),
+            embedded = mapOf("movies" to movies.map { toDto(it) }),
             links = mapOf(
                 "first" to controllerUtils.buildLink(
                     path = PATH,
@@ -111,9 +111,9 @@ class PersonController(
             total = total
         )
 
-    private fun toDto(total: Long, limit: Int = DEFAULT_LIMIT, skip: Int = DEFAULT_SKIP, people: Graph) =
+    private fun toDto(total: Long, limit: Int = DEFAULT_LIMIT, skip: Int = DEFAULT_SKIP, movies: Graph) =
         CollectionDto(
-            embedded = mapOf("graph" to people.toDto()),
+            embedded = mapOf("graph" to movies.toDto()),
             links = mapOf(
                 "first" to controllerUtils.buildLink(
                     path = PATH,

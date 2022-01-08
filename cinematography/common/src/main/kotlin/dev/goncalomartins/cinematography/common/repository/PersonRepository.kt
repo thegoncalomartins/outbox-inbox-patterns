@@ -17,14 +17,16 @@ class PersonRepository {
     private companion object {
         const val FIND_ONE_QUERY =
             """
-                MATCH path=(p: Person {id: ${'$'}id})<-[]-(m: Movie)
-                RETURN path ORDER BY p.updated_at DESC SKIP ${'$'}skip LIMIT ${'$'}limit
+                MATCH (node: Person {id: ${'$'}id})
+                OPTIONAL MATCH path=(node)<-[]-(m: Movie)
+                RETURN node, path ORDER BY m.updated_at DESC SKIP ${'$'}skip LIMIT ${'$'}limit
             """
 
         const val COUNT_ONE_QUERY =
             """
-                MATCH path=(p: Person {id: ${'$'}id})<-[]-(m: Movie)
-                RETURN count(path) as count
+                MATCH (p: Person {id: ${'$'}id})
+                OPTIONAL MATCH path=(p)<-[]-(m: Movie)
+                RETURN CASE WHEN count(p) > count(path) THEN count(p) ELSE count(path) END as count
             """
 
         const val COUNT_ALL_QUERY =
@@ -69,7 +71,7 @@ class PersonRepository {
                     .createFrom()
                     .publisher(
                         transaction.run(
-                            prepareQuery(FIND_ONE_QUERY, mapOf("skip" to skip.toString(), "limit" to limit.toString())),
+                            RepositoryUtils.prepareQuery(FIND_ONE_QUERY, mapOf("skip" to skip.toString(), "limit" to limit.toString())),
                             mapOf(
                                 "id" to id
                             )
@@ -90,7 +92,7 @@ class PersonRepository {
             .createFrom()
             .publisher(
                 transaction.run(
-                    prepareQuery(FIND_ALL_QUERY, mapOf("skip" to skip.toString(), "limit" to limit.toString()))
+                    RepositoryUtils.prepareQuery(FIND_ALL_QUERY, mapOf("skip" to skip.toString(), "limit" to limit.toString()))
                 ).records()
             ).map { record -> Person.fromNode(record["person"].asNode()) }
 
@@ -146,14 +148,4 @@ class PersonRepository {
                     )
                 ).records()
             ).map { record -> record["count"].asLong() }
-
-    private fun prepareQuery(query: String, params: Map<String, String>): String {
-        var newQuery = query
-
-        params.forEach { key, value ->
-            newQuery = newQuery.replace("\$$key", value)
-        }
-
-        return newQuery
-    }
 }

@@ -1,3 +1,5 @@
+val micrometerRegistryPrometheusVersion by extra("1.8.1")
+
 plugins {
     id("io.quarkus")
     kotlin("jvm")
@@ -6,6 +8,8 @@ plugins {
 
 dependencies {
     implementation(project(":common"))
+    implementation("io.micrometer:micrometer-registry-prometheus:$micrometerRegistryPrometheusVersion")
+    implementation("io.quarkus:quarkus-rest-client")
     implementation("io.quarkus:quarkus-smallrye-reactive-messaging-kafka")
 }
 

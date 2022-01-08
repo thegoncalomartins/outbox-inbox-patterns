@@ -6,7 +6,7 @@ services:
     hostname: kafka
     image: landoop/fast-data-dev:2.6.2
     environment:
-      ADV_HOST: kafka                                         
+      ADV_HOST: kafka
       RUNTESTS: 0                                             # Disable Running tests so the cluster starts faster
       SAMPLEDATA: 0                                           # Disable sample data topic creation
       RUNNING_SAMPLEDATA: 0                                   # Disable sample data
@@ -153,6 +153,18 @@ services:
       - kafka
       - cinematography-db
 
+  cinematography-api:
+    build:
+      context: ./cinematography
+      target: RUN
+      dockerfile: ./web/src/docker/Dockerfile.jvm
+    container_name: cinematography-api
+    hostname: cinematography-api
+    ports:
+      - 8082:8080
+    depends_on:
+      - cinematography-db
+
   api-gateway:
     image: devopsfaith/krakend
     container_name: api-gateway
@@ -166,6 +178,7 @@ services:
     depends_on:
       - movies-api
       - people-api
+      - cinematography-api
       - influx-db
       - jaeger
 
@@ -180,10 +193,19 @@ services:
     depends_on:
       - movies-api
       - people-api
+      - cinematography-api
       - api-gateway
       - cinematography-db
-      - mongodb-people-exporter
-      - mongodb-movies-exporter
+      - pushgateway
+      - people-db-mongodb-exporter
+      - movies-db-mongodb-exporter
+
+  pushgateway:
+    image: prom/pushgateway
+    container_name: pushgateway
+    hostname: pushgateway
+    ports:
+      - 9091:9091
 
   influx-db:
     image: influxdb:1.8
@@ -222,24 +244,24 @@ services:
       - 16686:16686
       - 14268:14268
 
-  mongodb-people-exporter:
+  people-db-mongodb-exporter:
     image: bitnami/mongodb-exporter
-    container_name: mongodb-people-exporter
-    hostname: mongodb-people-exporter
+    container_name: people-db-mongodb-exporter
+    hostname: people-db-mongodb-exporter
     environment:
       MONGODB_URI: mongodb://root:v5au8MVCvgh5BpSJ@people-db-primary:27017
-    ports: 
+    ports:
       - 9216:9216
     depends_on:
       - people-db-primary
 
-  mongodb-movies-exporter:
+  movies-db-mongodb-exporter:
     image: bitnami/mongodb-exporter
-    container_name: mongodb-movies-exporter
-    hostname: mongodb-movies-exporter
+    container_name: movies-db-mongodb-exporter
+    hostname: movies-db-mongodb-exporter
     environment:
       MONGODB_URI: mongodb://root:xH8Tw7Ug8ApgEC2b@movies-db-primary:27017
-    ports: 
+    ports:
       - 9217:9216
     depends_on:
       - movies-db-primary
