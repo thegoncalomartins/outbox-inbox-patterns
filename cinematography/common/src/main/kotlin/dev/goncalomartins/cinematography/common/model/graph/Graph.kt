@@ -19,4 +19,6 @@ class Graph {
         this.total = total
         this
     }
+
+    fun isEmpty() = nodes.isEmpty()
 }

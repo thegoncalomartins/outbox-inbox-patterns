@@ -18,14 +18,14 @@ class PersonRepository {
         const val FIND_ONE_QUERY =
             """
                 MATCH (node: Person {id: ${'$'}id})
-                OPTIONAL MATCH path=(node)<-[]-(m: Movie)
+                OPTIONAL MATCH path=(node)--(m: Movie)
                 RETURN node, path ORDER BY m.updated_at DESC SKIP ${'$'}skip LIMIT ${'$'}limit
             """
 
         const val COUNT_ONE_QUERY =
             """
                 MATCH (p: Person {id: ${'$'}id})
-                OPTIONAL MATCH path=(p)<-[]-(m: Movie)
+                OPTIONAL MATCH path=(p)--(m: Movie)
                 RETURN CASE WHEN count(p) > count(path) THEN count(p) ELSE count(path) END as count
             """
 

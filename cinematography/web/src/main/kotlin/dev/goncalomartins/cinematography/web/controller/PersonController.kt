@@ -1,5 +1,6 @@
 package dev.goncalomartins.cinematography.web.controller
 
+import dev.goncalomartins.cinematography.common.exception.PersonNotFoundException
 import dev.goncalomartins.cinematography.common.model.graph.Graph
 import dev.goncalomartins.cinematography.common.model.person.Person
 import dev.goncalomartins.cinematography.common.service.PersonService
@@ -72,6 +73,7 @@ class PersonController(
         @QueryParam(SKIP_PARAMETER) @DefaultValue(DEFAULT_SKIP.toString()) skip: Int
     ): Uni<RestResponse<CollectionDto<GraphDto>>> =
         personService.findOne(id, skip, limit)
+            .invoke { graph -> if (graph.isEmpty()) throw PersonNotFoundException(id) }
             .map { RestResponse.ok(toDto(total = it.total(), limit = limit, skip = skip, people = it)) }
 
     private fun toDto(person: Person) = person.toDto(

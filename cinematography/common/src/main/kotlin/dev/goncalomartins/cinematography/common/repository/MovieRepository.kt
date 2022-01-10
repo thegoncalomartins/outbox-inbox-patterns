@@ -18,15 +18,15 @@ class MovieRepository {
         const val FIND_ONE_QUERY =
             """
                 MATCH (node: Movie {id: ${'$'}id})
-                OPTIONAL MATCH path=(node)-[]->(p: Person)
+                OPTIONAL MATCH path=(node)--(p: Person)
                 RETURN node, path ORDER BY p.updated_at DESC SKIP ${'$'}skip LIMIT ${'$'}limit
             """
 
         const val COUNT_ONE_QUERY =
             """
                 MATCH (m: Movie {id: ${'$'}id})
-                OPTIONAL MATCH path=(m)-[]->(p: Person)
-                RETURN CASE WHEN count(p) > count(path) THEN count(p) ELSE count(path) END as count
+                OPTIONAL MATCH path=(m)--(p: Person)
+                RETURN CASE WHEN count(m) > count(path) THEN count(m) ELSE count(path) END as count
             """
 
         const val COUNT_ALL_QUERY =
@@ -61,16 +61,16 @@ class MovieRepository {
                 MERGE (m)-[:DIRECTED_BY]->(p)
             """
 
-        const val CREATE_CAST_RELATIONSHIP_QUERY =
+        const val CREATE_ACTED_IN_RELATIONSHIP_QUERY =
             """
                 MATCH (m:Movie),(p:Person) 
                 WHERE m.id = ${'$'}movie_id AND p.id = ${'$'}person_id 
-                MERGE (m)-[:CAST {role: ${'$'}role}]->(p)
+                MERGE (p)-[:ACTED_IN {role: ${'$'}role}]->(m)
             """
 
         const val DELETE_RELATIONSHIPS_QUERY =
             """
-                MATCH (m:Movie)-[r]->() 
+                MATCH (m:Movie)-[r]-() 
                 WHERE m.id = ${'$'}movie_id 
                 DELETE r
             """
@@ -136,7 +136,7 @@ class MovieRepository {
         createOrUpdateMovie(transaction, movie)
             .flatMap { deleteMovieRelationships(transaction, movie) }
             .flatMap { createDirectedByRelationships(transaction, movie) }
-            .flatMap { createCastRelationships(transaction, movie) }
+            .flatMap { createActedInRelationships(transaction, movie) }
 
     fun delete(transaction: RxTransaction, movie: Movie): Uni<Void> =
         Uni
@@ -207,7 +207,7 @@ class MovieRepository {
             .ignore()
             .andContinueWithNull()
 
-    private fun createCastRelationships(transaction: RxTransaction, movie: Movie): Uni<Void> =
+    private fun createActedInRelationships(transaction: RxTransaction, movie: Movie): Uni<Void> =
         Multi
             .createFrom()
             .iterable(movie.cast)
@@ -217,7 +217,7 @@ class MovieRepository {
                     .createFrom()
                     .publisher(
                         transaction.run(
-                            CREATE_CAST_RELATIONSHIP_QUERY,
+                            CREATE_ACTED_IN_RELATIONSHIP_QUERY,
                             mapOf(
                                 "movie_id" to movie.id,
                                 "person_id" to actor.personId,

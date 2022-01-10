@@ -1,5 +1,6 @@
 package dev.goncalomartins.cinematography.web.controller
 
+import dev.goncalomartins.cinematography.common.exception.MovieNotFoundException
 import dev.goncalomartins.cinematography.common.model.graph.Graph
 import dev.goncalomartins.cinematography.common.model.movie.Movie
 import dev.goncalomartins.cinematography.common.service.MovieService
@@ -72,6 +73,7 @@ class MovieController(
         @QueryParam(SKIP_PARAMETER) @DefaultValue(DEFAULT_SKIP.toString()) skip: Int
     ): Uni<RestResponse<CollectionDto<GraphDto>>> =
         movieService.findOne(id, skip, limit)
+            .invoke { graph -> if (graph.isEmpty()) throw MovieNotFoundException(id) }
             .map { RestResponse.ok(toDto(total = it.total(), limit = limit, skip = skip, movies = it)) }
 
     private fun toDto(movie: Movie) = movie.toDto(
