@@ -18,12 +18,12 @@ class PersonService(val personRepository: PersonRepository, val databaseUtils: D
         const val DEFAULT_SKIP = 0
     }
 
-    fun findOne(id: String, skip: Int, limit: Int): Uni<Graph> =
+    fun findOne(id: String, skip: Int = DEFAULT_SKIP, limit: Int = DEFAULT_LIMIT): Uni<Graph> =
         databaseUtils.inTransaction { transaction ->
             personRepository.findOne(transaction, id, skip, limit)
         }
 
-    fun findAll(skip: Int, limit: Int): Uni<People> =
+    fun findAll(skip: Int = DEFAULT_SKIP, limit: Int = DEFAULT_LIMIT): Uni<People> =
         databaseUtils.inTransaction { transaction ->
             personRepository.count(transaction)
                 .flatMap { total ->

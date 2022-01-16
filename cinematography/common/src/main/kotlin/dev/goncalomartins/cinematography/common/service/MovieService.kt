@@ -19,12 +19,12 @@ class MovieService(val movieRepository: MovieRepository, val databaseUtils: Data
         const val DEFAULT_SKIP = 0
     }
 
-    fun findOne(id: String, skip: Int, limit: Int): Uni<Graph> =
+    fun findOne(id: String, skip: Int = DEFAULT_SKIP, limit: Int = DEFAULT_LIMIT): Uni<Graph> =
         databaseUtils.inTransaction { transaction ->
             movieRepository.findOne(transaction, id, skip, limit)
         }
 
-    fun findAll(skip: Int, limit: Int): Uni<Movies> =
+    fun findAll(skip: Int = DEFAULT_SKIP, limit: Int = DEFAULT_LIMIT): Uni<Movies> =
         databaseUtils.inTransaction { transaction ->
             movieRepository.count(transaction)
                 .flatMap { total ->

@@ -1,0 +1,663 @@
+{
+	"info": {
+		"_postman_id": "3fe7f87d-a1e7-4be7-986b-68eaaf9ee6f4",
+		"name": "Outbox/Inbox Patterns",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "People",
+			"item": [
+				{
+					"name": "Create person",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Created\", () => {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"The response has all properties\", () => {",
+									"    //parse the response json and test three properties",
+									"    const person = pm.response.json();",
+									"    pm.expect(person.birth_date).to.eql(pm.collectionVariables.get('person_birth_date'));",
+									"    pm.expect(person.name).to.eql(pm.collectionVariables.get('person_name'));",
+									"    pm.expect(person.id).to.be.a('string');",
+									"    pm.expect(person.created_at).to.be.a('string');",
+									"    pm.expect(person.updated_at).to.be.a('string');",
+									"    pm.collectionVariables.set('person_id', person.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set('person_name', 'Robert Downer Jr.');",
+									"pm.collectionVariables.set('person_birth_date', '1965-04-04');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{person_name}}\",\n    \"birth_date\": \"{{person_birth_date}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{api_gateway_host}}/api/people",
+							"protocol": "http",
+							"host": [
+								"{{api_gateway_host}}"
+							],
+							"path": [
+								"api",
+								"people"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List people",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ok\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{api_gateway_host}}/api/people",
+							"protocol": "http",
+							"host": [
+								"{{api_gateway_host}}"
+							],
+							"path": [
+								"api",
+								"people"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read person",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ok\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"The response has all properties\", () => {",
+									"    //parse the response json and test three properties",
+									"    const person = pm.response.json();",
+									"    pm.expect(person.birth_date).to.eql(pm.collectionVariables.get('person_birth_date'));",
+									"    pm.expect(person.name).to.eql(pm.collectionVariables.get('person_name'));",
+									"    pm.expect(person.id).to.be.a('string');",
+									"    pm.expect(person.created_at).to.be.a('string');",
+									"    pm.expect(person.updated_at).to.be.a('string');",
+									"    pm.collectionVariables.set('person_id', person.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{api_gateway_host}}/api/people/{{person_id}}",
+							"protocol": "http",
+							"host": [
+								"{{api_gateway_host}}"
+							],
+							"path": [
+								"api",
+								"people",
+								"{{person_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update person",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ok\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"The response has all properties\", () => {",
+									"    //parse the response json and test three properties",
+									"    const person = pm.response.json();",
+									"    pm.expect(person.birth_date).to.eql(pm.collectionVariables.get('person_birth_date'));",
+									"    pm.expect(person.name).to.eql(pm.collectionVariables.get('person_name'));",
+									"    pm.expect(person.id).to.be.a('string');",
+									"    pm.expect(person.created_at).to.be.a('string');",
+									"    pm.expect(person.updated_at).to.be.a('string');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{person_name}}\",\n    \"birth_date\": \"{{person_birth_date}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{api_gateway_host}}/api/people/{{person_id}}",
+							"protocol": "http",
+							"host": [
+								"{{api_gateway_host}}"
+							],
+							"path": [
+								"api",
+								"people",
+								"{{person_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete person",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"No content\", () => {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{api_gateway_host}}/api/people/{{person_id}}",
+							"protocol": "http",
+							"host": [
+								"{{api_gateway_host}}"
+							],
+							"path": [
+								"api",
+								"people",
+								"{{person_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Movies",
+			"item": [
+				{
+					"name": "Create movie",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"movie_title\", \"Avengers Infinity War\");",
+									"pm.collectionVariables.set(\"movie_released\", 2018);",
+									"pm.collectionVariables.set(\"movie_cast_0_role\", \"Iron Man\");"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Created\", () => {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"The response has all properties\", () => {",
+									"    //parse the response json and test three properties",
+									"    const movie = pm.response.json();",
+									"    pm.expect(movie.released).to.eql(pm.collectionVariables.get('movie_released'));",
+									"    pm.expect(movie.title).to.eql(pm.collectionVariables.get('movie_title'));",
+									"    pm.expect(movie.id).to.be.a('string');",
+									"    pm.expect(movie.created_at).to.be.a('string');",
+									"    pm.expect(movie.updated_at).to.be.a('string');",
+									"    pm.collectionVariables.set('movie_id', movie.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"{{movie_title}}\",\n    \"released\": {{movie_released}},\n    \"directed_by\": [\"{{person_id}}\"],\n    \"cast\": [\n        {\n            \"person_id\": \"{{person_id}}\",\n            \"role\": \"{{movie_cast_0_role}}\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{api_gateway_host}}/api/movies",
+							"protocol": "http",
+							"host": [
+								"{{api_gateway_host}}"
+							],
+							"path": [
+								"api",
+								"movies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List movies",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ok\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{api_gateway_host}}/api/movies",
+							"protocol": "http",
+							"host": [
+								"{{api_gateway_host}}"
+							],
+							"path": [
+								"api",
+								"movies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read movie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ok\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"The response has all properties\", () => {",
+									"    //parse the response json and test three properties",
+									"    const movie = pm.response.json();",
+									"    pm.expect(movie.released).to.eql(pm.collectionVariables.get('movie_released'));",
+									"    pm.expect(movie.title).to.eql(pm.collectionVariables.get('movie_title'));",
+									"    pm.expect(movie.id).to.be.a('string');",
+									"    pm.expect(movie.created_at).to.be.a('string');",
+									"    pm.expect(movie.updated_at).to.be.a('string');",
+									"    pm.collectionVariables.set('movie_id', movie.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{api_gateway_host}}/api/movies/{{movie_id}}",
+							"protocol": "http",
+							"host": [
+								"{{api_gateway_host}}"
+							],
+							"path": [
+								"api",
+								"movies",
+								"{{movie_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update movie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ok\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"The response has all properties\", () => {",
+									"    //parse the response json and test three properties",
+									"    const movie = pm.response.json();",
+									"    pm.expect(movie.released).to.eql(pm.collectionVariables.get('movie_released'));",
+									"    pm.expect(movie.title).to.eql(pm.collectionVariables.get('movie_title'));",
+									"    pm.expect(movie.id).to.be.a('string');",
+									"    pm.expect(movie.created_at).to.be.a('string');",
+									"    pm.expect(movie.updated_at).to.be.a('string');",
+									"    pm.collectionVariables.set('movie_id', movie.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"{{movie_title}}\",\n    \"released\": {{movie_released}},\n    \"directed_by\": [\"{{person_id}}\"],\n    \"cast\": [\n        {\n            \"person_id\": \"{{person_id}}\",\n            \"role\": \"{{movie_cast_0_role}}\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{api_gateway_host}}/api/movies/{{movie_id}}",
+							"protocol": "http",
+							"host": [
+								"{{api_gateway_host}}"
+							],
+							"path": [
+								"api",
+								"movies",
+								"{{movie_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete movie",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"No content\", () => {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{api_gateway_host}}/api/movies/{{movie_id}}",
+							"protocol": "http",
+							"host": [
+								"{{api_gateway_host}}"
+							],
+							"path": [
+								"api",
+								"movies",
+								"{{movie_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cinematography",
+			"item": [
+				{
+					"name": "List people",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ok\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{api_gateway_host}}/api/cinematography/people",
+							"protocol": "http",
+							"host": [
+								"{{api_gateway_host}}"
+							],
+							"path": [
+								"api",
+								"cinematography",
+								"people"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read a person's relationships",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ok\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{api_gateway_host}}/api/cinematography/people/{{person_id}}",
+							"protocol": "http",
+							"host": [
+								"{{api_gateway_host}}"
+							],
+							"path": [
+								"api",
+								"cinematography",
+								"people",
+								"{{person_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List movies",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ok\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{api_gateway_host}}/api/cinematography/movies",
+							"protocol": "http",
+							"host": [
+								"{{api_gateway_host}}"
+							],
+							"path": [
+								"api",
+								"cinematography",
+								"movies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read a movie's relationships",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Ok\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{api_gateway_host}}/api/cinematography/movies/{{movie_id}}",
+							"protocol": "http",
+							"host": [
+								"{{api_gateway_host}}"
+							],
+							"path": [
+								"api",
+								"cinematography",
+								"movies",
+								"{{movie_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_gateway_host",
+			"value": "localhost:8090",
+			"type": "default"
+		}
+	]
+}

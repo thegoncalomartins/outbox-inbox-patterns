@@ -4,17 +4,16 @@ import dev.goncalomartins.cinematography.common.model.inbox.InboxEvent
 import dev.goncalomartins.cinematography.consumer.exception.EventAlreadyConsumedException
 import dev.goncalomartins.cinematography.consumer.handler.PeopleHandler
 import io.smallrye.mutiny.Uni
-import io.smallrye.reactive.messaging.kafka.IncomingKafkaRecord
 import io.vertx.core.json.JsonObject
 import org.eclipse.microprofile.opentracing.Traced
 import org.eclipse.microprofile.reactive.messaging.Incoming
+import org.eclipse.microprofile.reactive.messaging.Message
 import org.slf4j.LoggerFactory
-import java.util.function.Supplier
 import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
 @Traced
-class PeopleKafkaConsumer(val peopleHandler: PeopleHandler) : KafkaConsumer<String, String> {
+class PeopleConsumer(val peopleHandler: PeopleHandler) : Consumer<String> {
     private companion object {
         const val PEOPLE_CHANNEL = "people"
     }
@@ -22,26 +21,26 @@ class PeopleKafkaConsumer(val peopleHandler: PeopleHandler) : KafkaConsumer<Stri
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Incoming(PEOPLE_CHANNEL)
-    override fun consume(record: IncomingKafkaRecord<String, String>): Uni<Void> =
+    override fun consume(message: Message<String>): Uni<Void> =
         Uni
             .createFrom()
             .item {
-                logger.info("Consuming event with payload ${record.payload}")
-                InboxEvent.fromJsonObject(JsonObject(record.payload))
+                logger.info("Consuming event with payload ${message.payload}")
+                InboxEvent.fromJsonObject(JsonObject(message.payload))
             }.flatMap { inboxEvent ->
                 peopleHandler.handle(inboxEvent)
             }
             .flatMap {
                 Uni.createFrom().completionStage {
-                    logger.info("Success consuming event with payload ${record.payload}")
-                    record.ack()
+                    logger.info("Success consuming event with payload ${message.payload}")
+                    message.ack()
                 }
             }
             .onFailure(EventAlreadyConsumedException::class.java)
             .recoverWithUni(
-                Supplier {
-                    logger.info("Event with payload ${record.payload} was already consumed, acknowledging")
-                    Uni.createFrom().completionStage(record::ack)
+                Uni.createFrom().completionStage {
+                    logger.info("Event with payload ${message.payload} was already consumed, acknowledging")
+                    message.ack()
                 }
             )
             .onFailure()
@@ -49,8 +48,8 @@ class PeopleKafkaConsumer(val peopleHandler: PeopleHandler) : KafkaConsumer<Stri
                 Uni
                     .createFrom()
                     .completionStage {
-                        logger.error("Error consuming event with payload ${record.payload}: ${error.message}", error)
-                        record.nack(error)
+                        logger.error("Error consuming event with payload ${message.payload}: ${error.message}", error)
+                        message.nack(error)
                     }
             }
 }

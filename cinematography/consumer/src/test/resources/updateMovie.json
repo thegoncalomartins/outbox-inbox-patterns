@@ -1,0 +1,8 @@
+{
+  "id": "%s",
+  "aggregate_id": "%s",
+  "aggregate_type": "MOVIE",
+  "event_type": "UPDATED",
+  "timestamp": 1641557278,
+  "payload": "{\"id\": \"%s\",\"title\": \"other title\",\"released\": 2021,\"directed_by\": [\"%s\"],\"cast\": [{\"person_id\": \"%s\",\"role\": \"role\"}],\"created_at\": \"2022-01-07T12:10:13.911Z\",\"updated_at\": \"2022-01-07T12:10:13.911Z\"}"
+}

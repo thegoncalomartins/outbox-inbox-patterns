@@ -5,7 +5,7 @@ import dev.goncalomartins.cinematography.common.model.person.Person
 import java.util.function.Function
 import org.neo4j.driver.types.Node as Neo4jNode
 
-class Node(val id: Long, val label: String, val metadata: NodeMetadata) {
+data class Node(val id: Long, val label: String, val metadata: NodeMetadata) {
 
     companion object {
         private val map = mapOf(

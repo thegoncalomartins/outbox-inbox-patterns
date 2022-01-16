@@ -58,6 +58,9 @@ class PushMetricsJob(
             }
             .runSubscriptionOn(Executors.newSingleThreadExecutor())
             .subscribe()
-            .with { logger.info("Successfully pushed metrics") }
+            .with(
+                { logger.info("Successfully pushed metrics") },
+                { error -> logger.error("Error pushing metrics", error) }
+            )
     }
 }

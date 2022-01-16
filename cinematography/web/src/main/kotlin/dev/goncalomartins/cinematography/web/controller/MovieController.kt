@@ -1,14 +1,12 @@
 package dev.goncalomartins.cinematography.web.controller
 
 import dev.goncalomartins.cinematography.common.exception.MovieNotFoundException
-import dev.goncalomartins.cinematography.common.model.graph.Graph
 import dev.goncalomartins.cinematography.common.model.movie.Movie
 import dev.goncalomartins.cinematography.common.service.MovieService
 import dev.goncalomartins.cinematography.common.service.MovieService.Companion.DEFAULT_LIMIT
 import dev.goncalomartins.cinematography.common.service.MovieService.Companion.DEFAULT_SKIP
 import dev.goncalomartins.cinematography.web.controller.MovieController.Companion.PATH
 import dev.goncalomartins.cinematography.web.dto.graph.GraphDto
-import dev.goncalomartins.cinematography.web.dto.graph.toDto
 import dev.goncalomartins.cinematography.web.dto.hypermedia.CollectionDto
 import dev.goncalomartins.cinematography.web.dto.movie.MovieDto
 import dev.goncalomartins.cinematography.web.dto.movie.toDto
@@ -74,7 +72,18 @@ class MovieController(
     ): Uni<RestResponse<CollectionDto<GraphDto>>> =
         movieService.findOne(id, skip, limit)
             .invoke { graph -> if (graph.isEmpty()) throw MovieNotFoundException(id) }
-            .map { RestResponse.ok(toDto(total = it.total(), limit = limit, skip = skip, movies = it)) }
+            .map {
+                RestResponse.ok(
+                    controllerUtils.toDto(
+                        path = PATH_FOR_ONE,
+                        id = id,
+                        total = it.total(),
+                        limit = limit,
+                        skip = skip,
+                        graph = it
+                    )
+                )
+            }
 
     private fun toDto(movie: Movie) = movie.toDto(
         links = mapOf(
@@ -88,34 +97,6 @@ class MovieController(
     private fun toDto(total: Long, limit: Int = DEFAULT_LIMIT, skip: Int = DEFAULT_SKIP, movies: List<Movie>) =
         CollectionDto(
             embedded = mapOf("movies" to movies.map { toDto(it) }),
-            links = mapOf(
-                "first" to controllerUtils.buildLink(
-                    path = PATH,
-                    queryParams = controllerUtils.calculateFirst(limit)
-                ),
-                "previous" to controllerUtils.buildLink(
-                    path = PATH,
-                    queryParams = controllerUtils.calculatePrevious(limit = limit, skip = skip)
-                ),
-                "self" to controllerUtils.buildLink(
-                    path = PATH,
-                    queryParams = mapOf("limit" to limit.toString(), "skip" to skip.toString())
-                ),
-                "next" to controllerUtils.buildLink(
-                    path = PATH,
-                    queryParams = controllerUtils.calculateNext(total = total, limit = limit, skip = skip)
-                ),
-                "last" to controllerUtils.buildLink(
-                    path = PATH,
-                    queryParams = controllerUtils.calculateLast(total = total, limit = limit)
-                )
-            ),
-            total = total
-        )
-
-    private fun toDto(total: Long, limit: Int = DEFAULT_LIMIT, skip: Int = DEFAULT_SKIP, movies: Graph) =
-        CollectionDto(
-            embedded = mapOf("graph" to movies.toDto()),
             links = mapOf(
                 "first" to controllerUtils.buildLink(
                     path = PATH,

@@ -1,14 +1,12 @@
 package dev.goncalomartins.cinematography.web.controller
 
 import dev.goncalomartins.cinematography.common.exception.PersonNotFoundException
-import dev.goncalomartins.cinematography.common.model.graph.Graph
 import dev.goncalomartins.cinematography.common.model.person.Person
 import dev.goncalomartins.cinematography.common.service.PersonService
 import dev.goncalomartins.cinematography.common.service.PersonService.Companion.DEFAULT_LIMIT
 import dev.goncalomartins.cinematography.common.service.PersonService.Companion.DEFAULT_SKIP
 import dev.goncalomartins.cinematography.web.controller.PersonController.Companion.PATH
 import dev.goncalomartins.cinematography.web.dto.graph.GraphDto
-import dev.goncalomartins.cinematography.web.dto.graph.toDto
 import dev.goncalomartins.cinematography.web.dto.hypermedia.CollectionDto
 import dev.goncalomartins.cinematography.web.dto.person.PersonDto
 import dev.goncalomartins.cinematography.web.dto.person.toDto
@@ -74,7 +72,18 @@ class PersonController(
     ): Uni<RestResponse<CollectionDto<GraphDto>>> =
         personService.findOne(id, skip, limit)
             .invoke { graph -> if (graph.isEmpty()) throw PersonNotFoundException(id) }
-            .map { RestResponse.ok(toDto(total = it.total(), limit = limit, skip = skip, people = it)) }
+            .map {
+                RestResponse.ok(
+                    controllerUtils.toDto(
+                        PATH_FOR_ONE,
+                        id = id,
+                        total = it.total(),
+                        limit = limit,
+                        skip = skip,
+                        graph = it
+                    )
+                )
+            }
 
     private fun toDto(person: Person) = person.toDto(
         links = mapOf(
@@ -88,34 +97,6 @@ class PersonController(
     private fun toDto(total: Long, limit: Int = DEFAULT_LIMIT, skip: Int = DEFAULT_SKIP, people: List<Person>) =
         CollectionDto(
             embedded = mapOf("people" to people.map { toDto(it) }),
-            links = mapOf(
-                "first" to controllerUtils.buildLink(
-                    path = PATH,
-                    queryParams = controllerUtils.calculateFirst(limit)
-                ),
-                "previous" to controllerUtils.buildLink(
-                    path = PATH,
-                    queryParams = controllerUtils.calculatePrevious(limit = limit, skip = skip)
-                ),
-                "self" to controllerUtils.buildLink(
-                    path = PATH,
-                    queryParams = mapOf("limit" to limit.toString(), "skip" to skip.toString())
-                ),
-                "next" to controllerUtils.buildLink(
-                    path = PATH,
-                    queryParams = controllerUtils.calculateNext(total = total, limit = limit, skip = skip)
-                ),
-                "last" to controllerUtils.buildLink(
-                    path = PATH,
-                    queryParams = controllerUtils.calculateLast(total = total, limit = limit)
-                )
-            ),
-            total = total
-        )
-
-    private fun toDto(total: Long, limit: Int = DEFAULT_LIMIT, skip: Int = DEFAULT_SKIP, people: Graph) =
-        CollectionDto(
-            embedded = mapOf("graph" to people.toDto()),
             links = mapOf(
                 "first" to controllerUtils.buildLink(
                     path = PATH,
