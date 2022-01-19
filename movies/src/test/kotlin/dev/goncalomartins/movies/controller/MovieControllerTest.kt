@@ -1,6 +1,5 @@
-package dev.goncalomartins.movies
+package dev.goncalomartins.movies.controller
 
-import dev.goncalomartins.movies.controller.MovieController
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured
 import io.restassured.http.Header
@@ -27,7 +26,7 @@ import javax.ws.rs.core.MediaType
 @QuarkusTest
 @TestMethodOrder(MethodOrderer.DisplayName::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class MoviesTests {
+class MovieControllerTest {
 
     private companion object {
         const val CREATE_MOVIE_FILENAME = "createMovie.json"
@@ -399,7 +398,7 @@ class MoviesTests {
     }
 
     private fun readFileAsString(file: String): String {
-        val resource: InputStream = MoviesTests::class.java.classLoader.getResourceAsStream(file)!!
+        val resource: InputStream = MovieControllerTest::class.java.classLoader.getResourceAsStream(file)!!
 
         return BufferedReader(InputStreamReader(resource, StandardCharsets.UTF_8))
             .lines()

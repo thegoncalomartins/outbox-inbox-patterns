@@ -1,6 +1,5 @@
-package dev.goncalomartins.people
+package dev.goncalomartins.people.controller
 
-import dev.goncalomartins.people.controller.PersonController
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured
 import io.restassured.http.Header
@@ -27,7 +26,7 @@ import javax.ws.rs.core.MediaType
 @QuarkusTest
 @TestMethodOrder(MethodOrderer.DisplayName::class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class PeopleTests {
+class PersonControllerTest {
     private companion object {
         const val CREATE_PERSON_FILENAME = "createPerson.json"
         const val UPDATE_PERSON_FILENAME = "updatePerson.json"
@@ -340,7 +339,7 @@ class PeopleTests {
     }
 
     private fun readFileAsString(file: String): String {
-        val resource: InputStream = PeopleTests::class.java.classLoader.getResourceAsStream(file)!!
+        val resource: InputStream = PersonControllerTest::class.java.classLoader.getResourceAsStream(file)!!
 
         return BufferedReader(InputStreamReader(resource, StandardCharsets.UTF_8))
             .lines()
