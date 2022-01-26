@@ -32,7 +32,7 @@ $ ./gradlew clean build quarkusDev -x test
 
 ### Starting dependencies
 ```bash
-$ docker-compose up -d test-movies-db-primary test-movies-db-secondary test-movies-db-arbiter
+$ docker-compose -f docker-compose.test.yml up -d test-movies-db-primary test-movies-db-secondary test-movies-db-arbiter
 ```
 
 ### Testing

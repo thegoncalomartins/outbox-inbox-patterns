@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  test-kafka:
+    container_name: test-kafka
+    hostname: test-kafka
+    image: landoop/fast-data-dev:2.6.2
+    environment:
+      ADV_HOST: test-kafka
+      RUNTESTS: 0                                             # Disable Running tests so the cluster starts faster
+      SAMPLEDATA: 0                                           # Disable sample data topic creation
+      RUNNING_SAMPLEDATA: 0                                   # Disable sample data
+    ports:
+      - 9092:9092                                             # Kafka Broker
+
+  test-movies-db-primary:
+    image: bitnami/mongodb:5.0.3
+    container_name: test-movies-db-primary
+    hostname: test-movies-db-primary
+    environment:
+      MONGODB_ADVERTISED_HOSTNAME: test-movies-db-primary
+      MONGODB_REPLICA_SET_MODE: primary
+      MONGODB_ROOT_PASSWORD: xH8Tw7Ug8ApgEC2b
+      MONGODB_REPLICA_SET_KEY: TmgCWuwYYsA552Bb
+    ports:
+      - 27017:27017
+
+  test-movies-db-secondary:
+    image: bitnami/mongodb:5.0.3
+    container_name: test-movies-db-secondary
+    hostname: test-movies-db-secondary
+    environment:
+      MONGODB_ADVERTISED_HOSTNAME: test-movies-db-secondary
+      MONGODB_REPLICA_SET_MODE: secondary
+      MONGODB_PRIMARY_HOST: test-movies-db-primary
+      MONGODB_PRIMARY_ROOT_PASSWORD: xH8Tw7Ug8ApgEC2b
+      MONGODB_REPLICA_SET_KEY: TmgCWuwYYsA552Bb
+    depends_on:
+      - test-movies-db-primary
+
+  test-movies-db-arbiter:
+    image: bitnami/mongodb:5.0.3
+    container_name: test-movies-db-arbiter
+    hostname: test-movies-db-arbiter
+    environment:
+      MONGODB_ADVERTISED_HOSTNAME: test-movies-db-arbiter
+      MONGODB_REPLICA_SET_MODE: arbiter
+      MONGODB_PRIMARY_HOST: test-movies-db-primary
+      MONGODB_PRIMARY_ROOT_PASSWORD: xH8Tw7Ug8ApgEC2b
+      MONGODB_REPLICA_SET_KEY: TmgCWuwYYsA552Bb
+    depends_on:
+      - test-movies-db-primary
+      - test-movies-db-secondary
+
+  test-people-db-primary:
+    image: bitnami/mongodb:5.0.3
+    container_name: test-people-db-primary
+    hostname: test-people-db-primary
+    environment:
+      MONGODB_ADVERTISED_HOSTNAME: test-people-db-primary
+      MONGODB_REPLICA_SET_MODE: primary
+      MONGODB_ROOT_PASSWORD: v5au8MVCvgh5BpSJ
+      MONGODB_REPLICA_SET_KEY: rhMmahJsMJZg8LcG
+    ports:
+      - 27018:27017
+
+  test-people-db-secondary:
+    image: bitnami/mongodb:5.0.3
+    container_name: test-people-db-secondary
+    hostname: test-people-db-secondary
+    environment:
+      MONGODB_ADVERTISED_HOSTNAME: test-people-db-secondary
+      MONGODB_REPLICA_SET_MODE: secondary
+      MONGODB_PRIMARY_HOST: test-people-db-primary
+      MONGODB_PRIMARY_ROOT_PASSWORD: v5au8MVCvgh5BpSJ
+      MONGODB_REPLICA_SET_KEY: rhMmahJsMJZg8LcG
+    depends_on:
+      - test-people-db-primary
+
+  test-people-db-arbiter:
+    image: bitnami/mongodb:5.0.3
+    container_name: test-people-db-arbiter
+    hostname: test-people-db-arbiter
+    environment:
+      MONGODB_ADVERTISED_HOSTNAME: test-people-db-arbiter
+      MONGODB_REPLICA_SET_MODE: arbiter
+      MONGODB_PRIMARY_HOST: test-people-db-primary
+      MONGODB_PRIMARY_ROOT_PASSWORD: v5au8MVCvgh5BpSJ
+      MONGODB_REPLICA_SET_KEY: rhMmahJsMJZg8LcG
+    depends_on:
+      - test-people-db-primary
+      - test-people-db-secondary
+
+  test-knowledge-base-db:
+    image: neo4j:enterprise
+    container_name: test-knowledge-base-db
+    hostname: test-knowledge-base-db
+    environment:
+      NEO4J_ACCEPT_LICENSE_AGREEMENT: "yes"
+      NEO4J_AUTH: neo4j/HNxzZk7GBNcKv5kW
+    ports:
+      - 7687:7687 # BOLT

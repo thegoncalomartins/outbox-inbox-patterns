@@ -83,7 +83,7 @@
   },
   "endpoints": [
     {
-      "endpoint": "/api/cinematography/movies",
+      "endpoint": "/api/knowledge-base/movies",
       "method": "GET",
       "output_encoding": "no-op",
       "headers_to_pass": [
@@ -94,15 +94,15 @@
       "backend": [
         {
           "host": [
-            "http://cinematography-api:8080"
+            "http://knowledge-base-api:8080"
           ],
-          "url_pattern": "/api/cinematography/movies",
+          "url_pattern": "/api/knowledge-base/movies",
           "encoding": "no-op"
         }
       ]
     },
     {
-      "endpoint": "/api/cinematography/movies/{id}",
+      "endpoint": "/api/knowledge-base/movies/{id}",
       "method": "GET",
       "output_encoding": "no-op",
       "headers_to_pass": [
@@ -113,15 +113,15 @@
       "backend": [
         {
           "host": [
-            "http://cinematography-api:8080"
+            "http://knowledge-base-api:8080"
           ],
-          "url_pattern": "/api/cinematography/movies/{id}",
+          "url_pattern": "/api/knowledge-base/movies/{id}",
           "encoding": "no-op"
         }
       ]
     },
     {
-      "endpoint": "/api/cinematography/people",
+      "endpoint": "/api/knowledge-base/people",
       "method": "GET",
       "output_encoding": "no-op",
       "headers_to_pass": [
@@ -132,15 +132,15 @@
       "backend": [
         {
           "host": [
-            "http://cinematography-api:8080"
+            "http://knowledge-base-api:8080"
           ],
-          "url_pattern": "/api/cinematography/people",
+          "url_pattern": "/api/knowledge-base/people",
           "encoding": "no-op"
         }
       ]
     },
     {
-      "endpoint": "/api/cinematography/people/{id}",
+      "endpoint": "/api/knowledge-base/people/{id}",
       "method": "GET",
       "output_encoding": "no-op",
       "headers_to_pass": [
@@ -151,9 +151,9 @@
       "backend": [
         {
           "host": [
-            "http://cinematography-api:8080"
+            "http://knowledge-base-api:8080"
           ],
-          "url_pattern": "/api/cinematography/people/{id}",
+          "url_pattern": "/api/knowledge-base/people/{id}",
           "encoding": "no-op"
         }
       ]

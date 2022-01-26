@@ -494,7 +494,7 @@
 			]
 		},
 		{
-			"name": "Cinematography",
+			"name": "Knowledge Base",
 			"item": [
 				{
 					"name": "List people",
@@ -515,14 +515,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{api_gateway_host}}/api/cinematography/people",
+							"raw": "http://{{api_gateway_host}}/api/knowledge-base/people",
 							"protocol": "http",
 							"host": [
 								"{{api_gateway_host}}"
 							],
 							"path": [
 								"api",
-								"cinematography",
+								"knowledge-base",
 								"people"
 							]
 						}
@@ -548,14 +548,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{api_gateway_host}}/api/cinematography/people/{{person_id}}",
+							"raw": "http://{{api_gateway_host}}/api/knowledge-base/people/{{person_id}}",
 							"protocol": "http",
 							"host": [
 								"{{api_gateway_host}}"
 							],
 							"path": [
 								"api",
-								"cinematography",
+								"knowledge-base",
 								"people",
 								"{{person_id}}"
 							]
@@ -582,14 +582,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{api_gateway_host}}/api/cinematography/movies",
+							"raw": "http://{{api_gateway_host}}/api/knowledge-base/movies",
 							"protocol": "http",
 							"host": [
 								"{{api_gateway_host}}"
 							],
 							"path": [
 								"api",
-								"cinematography",
+								"knowledge-base",
 								"movies"
 							]
 						}
@@ -615,14 +615,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{api_gateway_host}}/api/cinematography/movies/{{movie_id}}",
+							"raw": "http://{{api_gateway_host}}/api/knowledge-base/movies/{{movie_id}}",
 							"protocol": "http",
 							"host": [
 								"{{api_gateway_host}}"
 							],
 							"path": [
 								"api",
-								"cinematography",
+								"knowledge-base",
 								"movies",
 								"{{movie_id}}"
 							]

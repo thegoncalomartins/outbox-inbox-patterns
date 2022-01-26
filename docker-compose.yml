@@ -23,18 +23,6 @@ services:
       - ./kafka/connectors/debezium-connector-mongodb:/connectors/debezium-connector-mongodb
       - ./kafka/observability:/root
 
-  test-kafka:
-    container_name: test-kafka
-    hostname: test-kafka
-    image: landoop/fast-data-dev:2.6.2
-    environment:
-      ADV_HOST: test-kafka
-      RUNTESTS: 0                                             # Disable Running tests so the cluster starts faster
-      SAMPLEDATA: 0                                           # Disable sample data topic creation
-      RUNNING_SAMPLEDATA: 0                                   # Disable sample data
-    ports:
-      - 9092:9092                                             # Kafka Broker
-
   movies-db-primary:
     image: bitnami/mongodb:5.0.3
     container_name: movies-db-primary
@@ -73,45 +61,6 @@ services:
     depends_on:
       - movies-db-primary
       - movies-db-secondary
-
-  test-movies-db-primary:
-    image: bitnami/mongodb:5.0.3
-    container_name: test-movies-db-primary
-    hostname: test-movies-db-primary
-    environment:
-      MONGODB_ADVERTISED_HOSTNAME: test-movies-db-primary
-      MONGODB_REPLICA_SET_MODE: primary
-      MONGODB_ROOT_PASSWORD: xH8Tw7Ug8ApgEC2b
-      MONGODB_REPLICA_SET_KEY: TmgCWuwYYsA552Bb
-    ports:
-      - 27017:27017
-
-  test-movies-db-secondary:
-    image: bitnami/mongodb:5.0.3
-    container_name: test-movies-db-secondary
-    hostname: test-movies-db-secondary
-    environment:
-      MONGODB_ADVERTISED_HOSTNAME: test-movies-db-secondary
-      MONGODB_REPLICA_SET_MODE: secondary
-      MONGODB_PRIMARY_HOST: test-movies-db-primary
-      MONGODB_PRIMARY_ROOT_PASSWORD: xH8Tw7Ug8ApgEC2b
-      MONGODB_REPLICA_SET_KEY: TmgCWuwYYsA552Bb
-    depends_on:
-      - test-movies-db-primary
-
-  test-movies-db-arbiter:
-    image: bitnami/mongodb:5.0.3
-    container_name: test-movies-db-arbiter
-    hostname: test-movies-db-arbiter
-    environment:
-      MONGODB_ADVERTISED_HOSTNAME: test-movies-db-arbiter
-      MONGODB_REPLICA_SET_MODE: arbiter
-      MONGODB_PRIMARY_HOST: test-movies-db-primary
-      MONGODB_PRIMARY_ROOT_PASSWORD: xH8Tw7Ug8ApgEC2b
-      MONGODB_REPLICA_SET_KEY: TmgCWuwYYsA552Bb
-    depends_on:
-      - test-movies-db-primary
-      - test-movies-db-secondary
 
   people-db-primary:
     image: bitnami/mongodb:5.0.3
@@ -152,49 +101,10 @@ services:
       - people-db-primary
       - people-db-secondary
 
-  test-people-db-primary:
-    image: bitnami/mongodb:5.0.3
-    container_name: test-people-db-primary
-    hostname: test-people-db-primary
-    environment:
-      MONGODB_ADVERTISED_HOSTNAME: test-people-db-primary
-      MONGODB_REPLICA_SET_MODE: primary
-      MONGODB_ROOT_PASSWORD: v5au8MVCvgh5BpSJ
-      MONGODB_REPLICA_SET_KEY: rhMmahJsMJZg8LcG
-    ports:
-      - 27018:27017
-
-  test-people-db-secondary:
-    image: bitnami/mongodb:5.0.3
-    container_name: test-people-db-secondary
-    hostname: test-people-db-secondary
-    environment:
-      MONGODB_ADVERTISED_HOSTNAME: test-people-db-secondary
-      MONGODB_REPLICA_SET_MODE: secondary
-      MONGODB_PRIMARY_HOST: test-people-db-primary
-      MONGODB_PRIMARY_ROOT_PASSWORD: v5au8MVCvgh5BpSJ
-      MONGODB_REPLICA_SET_KEY: rhMmahJsMJZg8LcG
-    depends_on:
-      - test-people-db-primary
-
-  test-people-db-arbiter:
-    image: bitnami/mongodb:5.0.3
-    container_name: test-people-db-arbiter
-    hostname: test-people-db-arbiter
-    environment:
-      MONGODB_ADVERTISED_HOSTNAME: test-people-db-arbiter
-      MONGODB_REPLICA_SET_MODE: arbiter
-      MONGODB_PRIMARY_HOST: test-people-db-primary
-      MONGODB_PRIMARY_ROOT_PASSWORD: v5au8MVCvgh5BpSJ
-      MONGODB_REPLICA_SET_KEY: rhMmahJsMJZg8LcG
-    depends_on:
-      - test-people-db-primary
-      - test-people-db-secondary
-
-  cinematography-db:
+  knowledge-base-db:
     image: neo4j:enterprise
-    container_name: cinematography-db
-    hostname: cinematography-db
+    container_name: knowledge-base-db
+    hostname: knowledge-base-db
     environment:
       NEO4J_ACCEPT_LICENSE_AGREEMENT: "yes"
       NEO4J_AUTH: neo4j/HNxzZk7GBNcKv5kW
@@ -203,16 +113,6 @@ services:
     ports:
       - 2004:2004 # Metrics
       - 7474:7474 # HTTP
-      - 7687:7687 # BOLT
-
-  test-cinematography-db:
-    image: neo4j:enterprise
-    container_name: test-cinematography-db
-    hostname: test-cinematography-db
-    environment:
-      NEO4J_ACCEPT_LICENSE_AGREEMENT: "yes"
-      NEO4J_AUTH: neo4j/HNxzZk7GBNcKv5kW
-    ports:
       - 7687:7687 # BOLT
 
   movies-api:
@@ -243,27 +143,27 @@ services:
       - people-db-secondary
       - people-db-arbiter
 
-  cinematography-consumer:
+  knowledge-base-consumer:
     build:
-      context: ./cinematography
+      context: ./knowledge-base
       target: RUN
       dockerfile: ./consumer/src/docker/Dockerfile.jvm
-    container_name: cinematography-consumer
+    container_name: knowledge-base-consumer
     depends_on:
       - kafka
-      - cinematography-db
+      - knowledge-base-db
 
-  cinematography-api:
+  knowledge-base-api:
     build:
-      context: ./cinematography
+      context: ./knowledge-base
       target: RUN
       dockerfile: ./web/src/docker/Dockerfile.jvm
-    container_name: cinematography-api
-    hostname: cinematography-api
+    container_name: knowledge-base-api
+    hostname: knowledge-base-api
     ports:
       - 8082:8080
     depends_on:
-      - cinematography-db
+      - knowledge-base-db
 
   api-gateway:
     image: devopsfaith/krakend
@@ -278,7 +178,7 @@ services:
     depends_on:
       - movies-api
       - people-api
-      - cinematography-api
+      - knowledge-base-api
       - influx-db
       - jaeger
 
@@ -293,9 +193,9 @@ services:
     depends_on:
       - movies-api
       - people-api
-      - cinematography-api
+      - knowledge-base-api
       - api-gateway
-      - cinematography-db
+      - knowledge-base-db
       - pushgateway
       - people-db-mongodb-exporter
       - movies-db-mongodb-exporter
