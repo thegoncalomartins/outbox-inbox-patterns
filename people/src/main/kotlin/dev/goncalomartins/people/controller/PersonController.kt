@@ -16,6 +16,7 @@ import io.micrometer.core.annotation.Counted
 import io.micrometer.core.annotation.Timed
 import io.smallrye.common.annotation.Blocking
 import io.smallrye.mutiny.Uni
+import io.vertx.ext.web.RoutingContext
 import org.eclipse.microprofile.opentracing.Traced
 import org.jboss.resteasy.reactive.RestResponse
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper
@@ -57,27 +58,39 @@ class PersonController(
     @GET
     fun findAll(
         @QueryParam(LIMIT_PARAMETER) @DefaultValue(DEFAULT_LIMIT.toString()) limit: Int,
-        @QueryParam(SKIP_PARAMETER) @DefaultValue(DEFAULT_SKIP.toString()) skip: Int
+        @QueryParam(SKIP_PARAMETER) @DefaultValue(DEFAULT_SKIP.toString()) skip: Int,
+        context: RoutingContext
     ): Uni<RestResponse<CollectionDto<PersonDto>>> =
         personService.findAll()
-            .map { RestResponse.ok(toDto(total = it.total, limit = limit, skip = skip, people = it.people)) }
+            .map {
+                RestResponse.ok(
+                    toDto(
+                        total = it.total,
+                        limit = limit,
+                        skip = skip,
+                        people = it.people,
+                        context = context
+                    )
+                )
+            }
 
     @Counted(value = "api.people.findOne.count", description = "How many times GET /api/people/{id} has been requested")
     @Timed(value = "api.people.findOne.time", description = "Response time for GET /api/people/{id}")
     @GET
     @Path("/{id}")
-    fun findOne(@PathParam(ID_PARAMETER) id: String): Uni<RestResponse<PersonDto>> =
-        personService.findOne(id).map { RestResponse.ok(toDto(it)) }
+    fun findOne(@PathParam(ID_PARAMETER) id: String, context: RoutingContext): Uni<RestResponse<PersonDto>> =
+        personService.findOne(id).map { RestResponse.ok(toDto(it, context)) }
 
     @Counted(value = "api.people.create.count", description = "How many times POST /api/people has been requested")
     @Timed(value = "api.people.create.time", description = "Response time for POST /api/people")
     @POST
     @Blocking
-    fun create(person: PersonDto): Uni<RestResponse<PersonDto>> =
+    fun create(person: PersonDto, context: RoutingContext): Uni<RestResponse<PersonDto>> =
         personService.create(person.toModel())
             .map {
-                RestResponse.ResponseBuilder.create(Response.Status.CREATED, toDto(it)).location(
+                RestResponse.ResponseBuilder.create(Response.Status.CREATED, toDto(it, context)).location(
                     controllerUtils.buildLink(
+                        context = context,
                         path = PATH_FOR_ONE,
                         uriVariables = mapOf("id" to it.id!!.toHexString())
                     ).href
@@ -89,8 +102,12 @@ class PersonController(
     @PUT
     @Path("/{id}")
     @Blocking
-    fun update(@PathParam(ID_PARAMETER) id: String, person: PersonDto): Uni<RestResponse<PersonDto>> =
-        personService.update(person.toModel(id)).map { RestResponse.ok(toDto(it)) }
+    fun update(
+        @PathParam(ID_PARAMETER) id: String,
+        person: PersonDto,
+        context: RoutingContext
+    ): Uni<RestResponse<PersonDto>> =
+        personService.update(person.toModel(id)).map { RestResponse.ok(toDto(it, context)) }
 
     @Counted(
         value = "api.people.delete.count",
@@ -124,36 +141,48 @@ class PersonController(
             )
         ).invoke { _ -> logger.error(exception.message, exception) }
 
-    private fun toDto(person: Person) = person.toDto(
+    private fun toDto(person: Person, context: RoutingContext) = person.toDto(
         links = mapOf(
             "self" to controllerUtils.buildLink(
+                context = context,
                 path = PATH_FOR_ONE,
                 uriVariables = mapOf("id" to person.id!!.toHexString())
             )
         )
     )
 
-    private fun toDto(total: Long, limit: Int = DEFAULT_LIMIT, skip: Int = DEFAULT_SKIP, people: List<Person>) =
+    private fun toDto(
+        total: Long,
+        limit: Int = DEFAULT_LIMIT,
+        skip: Int = DEFAULT_SKIP,
+        people: List<Person>,
+        context: RoutingContext
+    ) =
         CollectionDto(
-            embedded = mapOf("people" to people.map { toDto(it) }),
+            embedded = mapOf("people" to people.map { toDto(it, context) }),
             links = mapOf(
                 "first" to controllerUtils.buildLink(
+                    context = context,
                     path = PATH,
                     queryParams = controllerUtils.calculateFirst(limit)
                 ),
                 "previous" to controllerUtils.buildLink(
+                    context = context,
                     path = PATH,
                     queryParams = controllerUtils.calculatePrevious(limit = limit, skip = skip)
                 ),
                 "self" to controllerUtils.buildLink(
+                    context = context,
                     path = PATH,
                     queryParams = mapOf("limit" to limit.toString(), "skip" to skip.toString())
                 ),
                 "next" to controllerUtils.buildLink(
+                    context = context,
                     path = PATH,
                     queryParams = controllerUtils.calculateNext(total = total, limit = limit, skip = skip)
                 ),
                 "last" to controllerUtils.buildLink(
+                    context = context,
                     path = PATH,
                     queryParams = controllerUtils.calculateLast(total = total, limit = limit)
                 )

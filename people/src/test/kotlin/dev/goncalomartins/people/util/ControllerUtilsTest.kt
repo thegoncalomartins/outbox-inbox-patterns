@@ -1,5 +1,6 @@
 package dev.goncalomartins.people.util
 
+import io.vertx.ext.web.RoutingContext
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -7,27 +8,38 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import java.net.URI
+import org.mockito.Mockito.RETURNS_DEEP_STUBS
+import org.mockito.Mockito.mock
+import org.mockito.kotlin.whenever
+import java.net.InetAddress
 import java.util.stream.Stream
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ControllerUtilsTest {
 
     private lateinit var controllerUtils: ControllerUtils
-    private val apiGatewayURI = URI.create("https://goncalomartins.dev")
+    private lateinit var context: RoutingContext
+    private val port = 8080
 
     @BeforeAll
-    fun setup() = run { controllerUtils = ControllerUtils(apiGatewayURI) }
+    fun setup() {
+        controllerUtils = ControllerUtils(port)
+        context = mock(RoutingContext::class.java, RETURNS_DEEP_STUBS)
+    }
 
     @ParameterizedTest
     @MethodSource(value = ["buildLinkDataProvider"])
     fun testBuildLink(
+        xForwardedFor: String?,
         path: String,
         queryParams: Map<String, String>,
         uriVariables: Map<String, String>,
         expected: String
     ) {
-        val result = controllerUtils.buildLink(path, queryParams, uriVariables).href.toString()
+        whenever(context.request().getHeader("X-Forwarded-For"))
+            .thenReturn(xForwardedFor)
+
+        val result = controllerUtils.buildLink(context, path, queryParams, uriVariables).href.toString()
 
         assertEquals(expected, result)
     }
@@ -67,22 +79,47 @@ class ControllerUtilsTest {
 
     private fun buildLinkDataProvider(): Stream<Arguments> = Stream.of(
         Arguments.arguments(
+            "goncalomartins.dev",
             "/api/people/{id}",
             mapOf("limit" to "10", "skip" to "0"),
             mapOf("id" to "123456"),
-            "https://goncalomartins.dev/api/people/123456?limit=10&skip=0"
+            "http://goncalomartins.dev/api/people/123456?limit=10&skip=0"
         ),
         Arguments.arguments(
+            "goncalomartins.dev",
             "/api/people",
             mapOf<String, String>(),
             mapOf<String, String>(),
-            "https://goncalomartins.dev/api/people"
+            "http://goncalomartins.dev/api/people"
         ),
         Arguments.arguments(
+            "goncalomartins.dev",
             "/api/people",
             mapOf("limit" to "10", "skip" to "0"),
             mapOf<String, String>(),
-            "https://goncalomartins.dev/api/people?limit=10&skip=0"
+            "http://goncalomartins.dev/api/people?limit=10&skip=0"
+        ),
+
+        Arguments.arguments(
+            null,
+            "/api/people/{id}",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf("id" to "123456"),
+            "http://${InetAddress.getLocalHost().hostAddress}:$port/api/people/123456?limit=10&skip=0"
+        ),
+        Arguments.arguments(
+            null,
+            "/api/people",
+            mapOf<String, String>(),
+            mapOf<String, String>(),
+            "http://${InetAddress.getLocalHost().hostAddress}:$port/api/people"
+        ),
+        Arguments.arguments(
+            null,
+            "/api/people",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf<String, String>(),
+            "http://${InetAddress.getLocalHost().hostAddress}:$port/api/people?limit=10&skip=0"
         )
     )
 

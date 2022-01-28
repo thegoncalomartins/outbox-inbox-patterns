@@ -218,7 +218,12 @@ class PersonControllerTest {
 
         assertAll(
             { assertEquals("404", responseBody.getString("code")) },
-            { assertEquals("Person with id '61a66a521ec5f616a4fc2f9f' does not exist", responseBody.getString("message")) },
+            {
+                assertEquals(
+                    "Person with id '61a66a521ec5f616a4fc2f9f' does not exist",
+                    responseBody.getString("message")
+                )
+            },
         )
     }
 
@@ -290,7 +295,12 @@ class PersonControllerTest {
 
         assertAll(
             { assertEquals("404", responseBody.getString("code")) },
-            { assertEquals("Person with id '61a66a521ec5f616a4fc2f9f' does not exist", responseBody.getString("message")) },
+            {
+                assertEquals(
+                    "Person with id '61a66a521ec5f616a4fc2f9f' does not exist",
+                    responseBody.getString("message")
+                )
+            },
         )
     }
 
@@ -334,7 +344,12 @@ class PersonControllerTest {
 
         assertAll(
             { assertEquals("404", responseBody.getString("code")) },
-            { assertEquals("Person with id '61a66a521ec5f616a4fc2f9f' does not exist", responseBody.getString("message")) },
+            {
+                assertEquals(
+                    "Person with id '61a66a521ec5f616a4fc2f9f' does not exist",
+                    responseBody.getString("message")
+                )
+            },
         )
     }
 
