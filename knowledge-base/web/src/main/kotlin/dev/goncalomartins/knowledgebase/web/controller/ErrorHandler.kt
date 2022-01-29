@@ -14,7 +14,7 @@ class ErrorHandler {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @ServerExceptionMapper
-    fun mapException(exception: dev.goncalomartins.knowledgebase.common.exception.ResourceNotFoundException): Uni<RestResponse<ErrorDto>> =
+    fun mapException(exception: ResourceNotFoundException): Uni<RestResponse<ErrorDto>> =
         Uni.createFrom().item(
             RestResponse.status(
                 Response.Status.NOT_FOUND,

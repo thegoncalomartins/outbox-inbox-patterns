@@ -4,6 +4,9 @@ plugins {
     kotlin("plugin.allopen")
 }
 
+val mockitoKotlinVersion: String by extra("4.0.0")
+val mockitoJunitJupiterVersion: String by extra("4.3.1")
+
 dependencies {
     implementation(project(":common"))
     implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
@@ -12,6 +15,8 @@ dependencies {
     implementation("io.quarkus:quarkus-micrometer")
     implementation("io.quarkus:quarkus-micrometer-registry-prometheus")
     testImplementation("io.rest-assured:rest-assured")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
+    testImplementation("org.mockito:mockito-junit-jupiter:$mockitoJunitJupiterVersion")
 }
 
 allOpen {

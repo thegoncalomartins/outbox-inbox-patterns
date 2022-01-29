@@ -7,6 +7,12 @@ to query the graph.
 
 ### Architecture
 
+![architecture](docs/knowledge-base-architecture.png)
+
+### Package Diagram
+
+![package-diagram](docs/knowledge-base-package-diagram.png)
+
 ## Running
 
 ### Via Docker
@@ -16,6 +22,11 @@ $ docker-compose up -d api-gateway knowledge-base-api knowledge-base-consumer ka
 ```
 
 ### Locally
+
+#### Starting dependencies
+```bash
+$ docker-compose up -d kafka knowledge-base-db
+```
 
 #### API
 
@@ -33,20 +44,20 @@ $ ./gradlew clean build :consumer:quarkusDev -x test
 
 ### Starting dependencies
 ```bash
-$ docker-compose -f docker-compose.test.yml up -d test-kafka test-knowledge-base-db
+$ docker-compose -f ../docker-compose.test.yml up -d test-kafka test-knowledge-base-db
 ```
 
-### Testing common
+### Common
 ```bash
-$ cd common && ./gradlew clean build
+$ ./gradlew clean :common:build
 ```
 
-### Testing API
+### API
 ```bash
-$ cd web && ./gradlew clean build
+$ ./gradlew clean :web:build
 ```
 
-### Testing Consumer
+### Consumer
 ```bash
-$ cd consumer && ./gradlew clean build
+$ ./gradlew clean :consumer:build
 ```

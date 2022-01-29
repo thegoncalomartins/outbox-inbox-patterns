@@ -10,7 +10,7 @@ pluginManagement {
         id(quarkusPluginId) version quarkusPluginVersion
     }
 }
-rootProject.name = "knowledgebase"
+rootProject.name = "knowledge-base"
 include("common")
 include("consumer")
 include("web")

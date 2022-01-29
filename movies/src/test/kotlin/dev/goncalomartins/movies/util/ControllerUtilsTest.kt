@@ -1,5 +1,6 @@
 package dev.goncalomartins.movies.util
 
+import io.vertx.ext.web.RoutingContext
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -7,27 +8,42 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
-import java.net.URI
+import org.mockito.Mockito.RETURNS_DEEP_STUBS
+import org.mockito.Mockito.mock
+import org.mockito.kotlin.whenever
+import java.net.InetAddress
 import java.util.stream.Stream
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ControllerUtilsTest {
 
     private lateinit var controllerUtils: ControllerUtils
-    private val apiGatewayURI = URI.create("https://goncalomartins.dev")
+    private lateinit var context: RoutingContext
+    private val port = 8080
 
     @BeforeAll
-    fun setup() = run { controllerUtils = ControllerUtils(apiGatewayURI) }
+    fun setup() {
+        controllerUtils = ControllerUtils(port)
+        context = mock(RoutingContext::class.java, RETURNS_DEEP_STUBS)
+    }
 
     @ParameterizedTest
     @MethodSource(value = ["buildLinkDataProvider"])
     fun testBuildLink(
+        xForwardedFor: String?,
+        xForwardedProto: String?,
         path: String,
         queryParams: Map<String, String>,
         uriVariables: Map<String, String>,
         expected: String
     ) {
-        val result = controllerUtils.buildLink(path, queryParams, uriVariables).href.toString()
+        whenever(context.request().getHeader("X-Forwarded-For"))
+            .thenReturn(xForwardedFor)
+
+        whenever(context.request().getHeader("X-Forwarded-Proto"))
+            .thenReturn(xForwardedProto)
+
+        val result = controllerUtils.buildLink(context, path, queryParams, uriVariables).href.toString()
 
         assertEquals(expected, result)
     }
@@ -67,23 +83,151 @@ class ControllerUtilsTest {
 
     private fun buildLinkDataProvider(): Stream<Arguments> = Stream.of(
         Arguments.arguments(
+            "goncalomartins.dev",
+            "http",
+            "/api/movies/{id}",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf("id" to "123456"),
+            "http://goncalomartins.dev/api/movies/123456?limit=10&skip=0"
+        ),
+        Arguments.arguments(
+            "goncalomartins.dev",
+            "http",
+            "/api/movies",
+            mapOf<String, String>(),
+            mapOf<String, String>(),
+            "http://goncalomartins.dev/api/movies"
+        ),
+        Arguments.arguments(
+            "goncalomartins.dev",
+            "http",
+            "/api/movies",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf<String, String>(),
+            "http://goncalomartins.dev/api/movies?limit=10&skip=0"
+        ),
+        Arguments.arguments(
+            null,
+            "http",
+            "/api/movies/{id}",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf("id" to "123456"),
+            "http://${InetAddress.getLocalHost().hostAddress}:$port/api/movies/123456?limit=10&skip=0"
+        ),
+        Arguments.arguments(
+            null,
+            "http",
+            "/api/movies",
+            mapOf<String, String>(),
+            mapOf<String, String>(),
+            "http://${InetAddress.getLocalHost().hostAddress}:$port/api/movies"
+        ),
+        Arguments.arguments(
+            null,
+            "http",
+            "/api/movies",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf<String, String>(),
+            "http://${InetAddress.getLocalHost().hostAddress}:$port/api/movies?limit=10&skip=0"
+        ),
+
+        Arguments.arguments(
+            "goncalomartins.dev",
+            "https",
             "/api/movies/{id}",
             mapOf("limit" to "10", "skip" to "0"),
             mapOf("id" to "123456"),
             "https://goncalomartins.dev/api/movies/123456?limit=10&skip=0"
         ),
         Arguments.arguments(
+            "goncalomartins.dev",
+            "https",
             "/api/movies",
             mapOf<String, String>(),
             mapOf<String, String>(),
             "https://goncalomartins.dev/api/movies"
         ),
         Arguments.arguments(
+            "goncalomartins.dev",
+            "https",
             "/api/movies",
             mapOf("limit" to "10", "skip" to "0"),
             mapOf<String, String>(),
             "https://goncalomartins.dev/api/movies?limit=10&skip=0"
-        )
+        ),
+        Arguments.arguments(
+            null,
+            "https",
+            "/api/movies/{id}",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf("id" to "123456"),
+            "https://${InetAddress.getLocalHost().hostAddress}:$port/api/movies/123456?limit=10&skip=0"
+        ),
+        Arguments.arguments(
+            null,
+            "https",
+            "/api/movies",
+            mapOf<String, String>(),
+            mapOf<String, String>(),
+            "https://${InetAddress.getLocalHost().hostAddress}:$port/api/movies"
+        ),
+        Arguments.arguments(
+            null,
+            "https",
+            "/api/movies",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf<String, String>(),
+            "https://${InetAddress.getLocalHost().hostAddress}:$port/api/movies?limit=10&skip=0"
+        ),
+
+        Arguments.arguments(
+            "goncalomartins.dev",
+            null,
+            "/api/movies/{id}",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf("id" to "123456"),
+            "http://goncalomartins.dev/api/movies/123456?limit=10&skip=0"
+        ),
+        Arguments.arguments(
+            "goncalomartins.dev",
+            null,
+            "/api/movies",
+            mapOf<String, String>(),
+            mapOf<String, String>(),
+            "http://goncalomartins.dev/api/movies"
+        ),
+        Arguments.arguments(
+            "goncalomartins.dev",
+            null,
+            "/api/movies",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf<String, String>(),
+            "http://goncalomartins.dev/api/movies?limit=10&skip=0"
+        ),
+        Arguments.arguments(
+            null,
+            null,
+            "/api/movies/{id}",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf("id" to "123456"),
+            "http://${InetAddress.getLocalHost().hostAddress}:$port/api/movies/123456?limit=10&skip=0"
+        ),
+        Arguments.arguments(
+            null,
+            null,
+            "/api/movies",
+            mapOf<String, String>(),
+            mapOf<String, String>(),
+            "http://${InetAddress.getLocalHost().hostAddress}:$port/api/movies"
+        ),
+        Arguments.arguments(
+            null,
+            null,
+            "/api/movies",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf<String, String>(),
+            "http://${InetAddress.getLocalHost().hostAddress}:$port/api/movies?limit=10&skip=0"
+        ),
     )
 
     private fun calculatePreviousDataProvider(): Stream<Arguments> =

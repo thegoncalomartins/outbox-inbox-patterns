@@ -2,7 +2,7 @@ package dev.goncalomartins.knowledgebase.web.dto.person
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
-import dev.goncalomartins.knowledge-base.common.model.person.Person
+import dev.goncalomartins.knowledgebase.common.model.person.Person
 import dev.goncalomartins.knowledgebase.web.dto.hypermedia.Dto
 import dev.goncalomartins.knowledgebase.web.dto.hypermedia.Link
 import java.time.Instant

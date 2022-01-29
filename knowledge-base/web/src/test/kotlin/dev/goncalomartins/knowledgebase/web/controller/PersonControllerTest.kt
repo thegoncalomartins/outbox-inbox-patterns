@@ -1,8 +1,8 @@
 package dev.goncalomartins.knowledgebase.web.controller
 
-import dev.goncalomartins.knowledge-base.common.model.person.Person
-import dev.goncalomartins.knowledge-base.common.service.PersonService
-import dev.goncalomartins.knowledge-base.common.util.DatabaseUtils
+import dev.goncalomartins.knowledgebase.common.model.person.Person
+import dev.goncalomartins.knowledgebase.common.service.PersonService
+import dev.goncalomartins.knowledgebase.common.util.DatabaseUtils
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured
 import io.restassured.http.Header

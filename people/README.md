@@ -6,6 +6,12 @@
 
 ### Architecture
 
+![architecture](docs/people-architecture.png)
+
+### Package Diagram
+
+![architecture](docs/people-package-diagram.png)
+
 ## Running
 
 ### Via Docker
@@ -32,7 +38,7 @@ $ ./gradlew clean build quarkusDev -x test
 
 ### Starting dependencies
 ```bash
-$ docker-compose -f docker-compose.test.yml up -d test-people-db-primary test-people-db-secondary test-people-db-arbiter
+$ docker-compose -f ../docker-compose.test.yml up -d test-people-db-primary test-people-db-secondary test-people-db-arbiter
 ```
 
 ### Testing

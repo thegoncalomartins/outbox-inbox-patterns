@@ -15,6 +15,7 @@ import io.micrometer.core.annotation.Counted
 import io.micrometer.core.annotation.Timed
 import io.smallrye.common.annotation.Blocking
 import io.smallrye.mutiny.Uni
+import io.vertx.ext.web.RoutingContext
 import org.eclipse.microprofile.opentracing.Traced
 import org.jboss.resteasy.reactive.RestResponse
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper
@@ -56,27 +57,29 @@ class MovieController(
     @GET
     fun findAll(
         @QueryParam(LIMIT_PARAMETER) @DefaultValue(DEFAULT_LIMIT.toString()) limit: Int,
-        @QueryParam(SKIP_PARAMETER) @DefaultValue(DEFAULT_SKIP.toString()) skip: Int
+        @QueryParam(SKIP_PARAMETER) @DefaultValue(DEFAULT_SKIP.toString()) skip: Int,
+        context: RoutingContext
     ): Uni<RestResponse<CollectionDto<MovieDto>>> =
         movieService.findAll()
-            .map { RestResponse.ok(toDto(total = it.total, limit = limit, skip = skip, movies = it.movies)) }
+            .map { RestResponse.ok(toDto(total = it.total, limit = limit, skip = skip, movies = it.movies, context)) }
 
     @Counted(value = "api.movies.findOne.count", description = "How many times GET /api/movies/{id} has been requested")
     @Timed(value = "api.movies.findOne.time", description = "Response time for GET /api/movies/{id}")
     @GET
     @Path("/{id}")
-    fun findOne(@PathParam(ID_PARAMETER) id: String): Uni<RestResponse<MovieDto>> =
-        movieService.findOne(id).map { RestResponse.ok(toDto(it)) }
+    fun findOne(@PathParam(ID_PARAMETER) id: String, context: RoutingContext): Uni<RestResponse<MovieDto>> =
+        movieService.findOne(id).map { RestResponse.ok(toDto(it, context)) }
 
     @Counted(value = "api.movies.create.count", description = "How many times POST /api/movies has been requested")
     @Timed(value = "api.movies.create.time", description = "Response time for POST /api/movies")
     @POST
     @Blocking
-    fun create(movie: MovieDto): Uni<RestResponse<MovieDto>> =
+    fun create(movie: MovieDto, context: RoutingContext): Uni<RestResponse<MovieDto>> =
         movieService.create(movie.toMovie())
             .map {
-                RestResponse.ResponseBuilder.create(Response.Status.CREATED, toDto(it)).location(
+                RestResponse.ResponseBuilder.create(Response.Status.CREATED, toDto(it, context)).location(
                     controllerUtils.buildLink(
+                        context = context,
                         path = PATH_FOR_ONE,
                         uriVariables = mapOf("id" to it.id!!.toHexString())
                     ).href
@@ -88,8 +91,12 @@ class MovieController(
     @PUT
     @Path("/{id}")
     @Blocking
-    fun update(@PathParam(ID_PARAMETER) id: String, movie: MovieDto): Uni<RestResponse<MovieDto>> =
-        movieService.update(movie.toMovie(id)).map { RestResponse.ok(toDto(it)) }
+    fun update(
+        @PathParam(ID_PARAMETER) id: String,
+        movie: MovieDto,
+        context: RoutingContext
+    ): Uni<RestResponse<MovieDto>> =
+        movieService.update(movie.toMovie(id)).map { RestResponse.ok(toDto(it, context)) }
 
     @Counted(
         value = "api.movies.delete.count",
@@ -123,36 +130,48 @@ class MovieController(
             )
         ).invoke { _ -> logger.error(exception.message, exception) }
 
-    private fun toDto(movie: Movie) = movie.toDto(
+    private fun toDto(movie: Movie, context: RoutingContext) = movie.toDto(
         links = mapOf(
             "self" to controllerUtils.buildLink(
+                context = context,
                 path = PATH_FOR_ONE,
                 uriVariables = mapOf("id" to movie.id!!.toHexString())
             )
         )
     )
 
-    private fun toDto(total: Long, limit: Int = DEFAULT_LIMIT, skip: Int = DEFAULT_SKIP, movies: List<Movie>) =
+    private fun toDto(
+        total: Long,
+        limit: Int = DEFAULT_LIMIT,
+        skip: Int = DEFAULT_SKIP,
+        movies: List<Movie>,
+        context: RoutingContext
+    ) =
         CollectionDto(
-            embedded = mapOf("movies" to movies.map { toDto(it) }),
+            embedded = mapOf("movies" to movies.map { toDto(it, context) }),
             links = mapOf(
                 "first" to controllerUtils.buildLink(
+                    context = context,
                     path = PATH,
                     queryParams = controllerUtils.calculateFirst(limit)
                 ),
                 "previous" to controllerUtils.buildLink(
+                    context = context,
                     path = PATH,
                     queryParams = controllerUtils.calculatePrevious(limit = limit, skip = skip)
                 ),
                 "self" to controllerUtils.buildLink(
+                    context = context,
                     path = PATH,
                     queryParams = mapOf("limit" to limit.toString(), "skip" to skip.toString())
                 ),
                 "next" to controllerUtils.buildLink(
+                    context = context,
                     path = PATH,
                     queryParams = controllerUtils.calculateNext(total = total, limit = limit, skip = skip)
                 ),
                 "last" to controllerUtils.buildLink(
+                    context = context,
                     path = PATH,
                     queryParams = controllerUtils.calculateLast(total = total, limit = limit)
                 )

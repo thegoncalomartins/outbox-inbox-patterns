@@ -1,10 +1,10 @@
 package dev.goncalomartins.knowledgebase.common.service
 
 import dev.goncalomartins.knowledgebase.common.model.graph.Graph
-import dev.goncalomartins.knowledge-base.common.model.person.People
-import dev.goncalomartins.knowledge-base.common.model.person.Person
-import dev.goncalomartins.knowledge-base.common.repository.PersonRepository
-import dev.goncalomartins.knowledge-base.common.util.DatabaseUtils
+import dev.goncalomartins.knowledgebase.common.model.person.People
+import dev.goncalomartins.knowledgebase.common.model.person.Person
+import dev.goncalomartins.knowledgebase.common.repository.PersonRepository
+import dev.goncalomartins.knowledgebase.common.util.DatabaseUtils
 import io.smallrye.mutiny.Uni
 import org.eclipse.microprofile.opentracing.Traced
 import org.neo4j.driver.reactive.RxTransaction
@@ -18,7 +18,7 @@ class PersonService(val personRepository: PersonRepository, val databaseUtils: D
         const val DEFAULT_SKIP = 0
     }
 
-    fun findOne(id: String, skip: Int = DEFAULT_SKIP, limit: Int = DEFAULT_LIMIT): Uni<dev.goncalomartins.knowledgebase.common.model.graph.Graph> =
+    fun findOne(id: String, skip: Int = DEFAULT_SKIP, limit: Int = DEFAULT_LIMIT): Uni<Graph> =
         databaseUtils.inTransaction { transaction ->
             personRepository.findOne(transaction, id, skip, limit)
         }

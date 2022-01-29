@@ -1,7 +1,7 @@
 package dev.goncalomartins.knowledgebase.consumer.consumer
 
-import dev.goncalomartins.knowledge-base.common.model.person.Person
-import dev.goncalomartins.knowledge-base.common.service.PersonService
+import dev.goncalomartins.knowledgebase.common.model.person.Person
+import dev.goncalomartins.knowledgebase.common.service.PersonService
 import dev.goncalomartins.knowledgebase.consumer.util.TestUtils
 import io.quarkus.test.junit.QuarkusTest
 import io.smallrye.reactive.messaging.kafka.KafkaRecord

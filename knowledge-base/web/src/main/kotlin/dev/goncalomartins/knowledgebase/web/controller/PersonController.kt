@@ -1,10 +1,10 @@
 package dev.goncalomartins.knowledgebase.web.controller
 
 import dev.goncalomartins.knowledgebase.common.exception.PersonNotFoundException
-import dev.goncalomartins.knowledge-base.common.model.person.Person
-import dev.goncalomartins.knowledge-base.common.service.PersonService
-import dev.goncalomartins.knowledge-base.common.service.PersonService.Companion.DEFAULT_LIMIT
-import dev.goncalomartins.knowledge-base.common.service.PersonService.Companion.DEFAULT_SKIP
+import dev.goncalomartins.knowledgebase.common.model.person.Person
+import dev.goncalomartins.knowledgebase.common.service.PersonService
+import dev.goncalomartins.knowledgebase.common.service.PersonService.Companion.DEFAULT_LIMIT
+import dev.goncalomartins.knowledgebase.common.service.PersonService.Companion.DEFAULT_SKIP
 import dev.goncalomartins.knowledgebase.web.controller.PersonController.Companion.PATH
 import dev.goncalomartins.knowledgebase.web.dto.graph.GraphDto
 import dev.goncalomartins.knowledgebase.web.dto.hypermedia.CollectionDto
@@ -14,6 +14,7 @@ import dev.goncalomartins.knowledgebase.web.util.ControllerUtils
 import io.micrometer.core.annotation.Counted
 import io.micrometer.core.annotation.Timed
 import io.smallrye.mutiny.Uni
+import io.vertx.ext.web.RoutingContext
 import org.eclipse.microprofile.opentracing.Traced
 import org.jboss.resteasy.reactive.RestResponse
 import javax.ws.rs.DefaultValue
@@ -40,27 +41,38 @@ class PersonController(
     }
 
     @Counted(
-        value = "api.knowledge-base.people.findAll.count",
+        value = "api.knowledgebase.people.findAll.count",
         description = "How many times GET /api/knowledge-base/people has been requested"
     )
     @Timed(
-        value = "api.knowledge-base.people.findAll.time",
+        value = "api.knowledgebase.people.findAll.time",
         description = "Response time for GET /api/knowledge-base/people"
     )
     @GET
     fun findAll(
         @QueryParam(LIMIT_PARAMETER) @DefaultValue(DEFAULT_LIMIT.toString()) limit: Int,
-        @QueryParam(SKIP_PARAMETER) @DefaultValue(DEFAULT_SKIP.toString()) skip: Int
+        @QueryParam(SKIP_PARAMETER) @DefaultValue(DEFAULT_SKIP.toString()) skip: Int,
+        context: RoutingContext
     ): Uni<RestResponse<CollectionDto<List<PersonDto>>>> =
         personService.findAll(skip, limit)
-            .map { RestResponse.ok(toDto(total = it.total, limit = limit, skip = skip, people = it.people)) }
+            .map {
+                RestResponse.ok(
+                    toDto(
+                        total = it.total,
+                        limit = limit,
+                        skip = skip,
+                        people = it.people,
+                        context = context
+                    )
+                )
+            }
 
     @Counted(
-        value = "api.knowledge-base.people.findOne.count",
+        value = "api.knowledgebase.people.findOne.count",
         description = "How many times GET /api/knowledge-base/people/{id} has been requested"
     )
     @Timed(
-        value = "api.knowledge-base.people.findOne.time",
+        value = "api.knowledgebase.people.findOne.time",
         description = "Response time for GET /api/knowledge-base/people/{id}"
     )
     @GET
@@ -68,17 +80,20 @@ class PersonController(
     fun findOne(
         @PathParam(ID_PARAMETER) id: String,
         @QueryParam(LIMIT_PARAMETER) @DefaultValue(DEFAULT_LIMIT.toString()) limit: Int,
-        @QueryParam(SKIP_PARAMETER) @DefaultValue(DEFAULT_SKIP.toString()) skip: Int
+        @QueryParam(SKIP_PARAMETER) @DefaultValue(DEFAULT_SKIP.toString()) skip: Int,
+        context: RoutingContext
     ): Uni<RestResponse<CollectionDto<GraphDto>>> =
         personService.findOne(id, skip, limit)
-            .invoke { graph -> if (graph.isEmpty()) throw dev.goncalomartins.knowledgebase.common.exception.PersonNotFoundException(
-                id
-            )
+            .invoke { graph ->
+                if (graph.isEmpty()) throw PersonNotFoundException(
+                    id
+                )
             }
             .map {
                 RestResponse.ok(
                     controllerUtils.toDto(
-                        PATH_FOR_ONE,
+                        context = context,
+                        path = PATH_FOR_ONE,
                         id = id,
                         total = it.total(),
                         limit = limit,
@@ -88,36 +103,48 @@ class PersonController(
                 )
             }
 
-    private fun toDto(person: Person) = person.toDto(
+    private fun toDto(person: Person, context: RoutingContext) = person.toDto(
         links = mapOf(
             "self" to controllerUtils.buildLink(
+                context = context,
                 path = PATH_FOR_ONE,
                 uriVariables = mapOf("id" to person.id)
             )
         )
     )
 
-    private fun toDto(total: Long, limit: Int = DEFAULT_LIMIT, skip: Int = DEFAULT_SKIP, people: List<Person>) =
+    private fun toDto(
+        total: Long,
+        limit: Int = DEFAULT_LIMIT,
+        skip: Int = DEFAULT_SKIP,
+        people: List<Person>,
+        context: RoutingContext
+    ) =
         CollectionDto(
-            embedded = mapOf("people" to people.map { toDto(it) }),
+            embedded = mapOf("people" to people.map { toDto(it, context) }),
             links = mapOf(
                 "first" to controllerUtils.buildLink(
+                    context = context,
                     path = PATH,
                     queryParams = controllerUtils.calculateFirst(limit)
                 ),
                 "previous" to controllerUtils.buildLink(
+                    context = context,
                     path = PATH,
                     queryParams = controllerUtils.calculatePrevious(limit = limit, skip = skip)
                 ),
                 "self" to controllerUtils.buildLink(
+                    context = context,
                     path = PATH,
                     queryParams = mapOf("limit" to limit.toString(), "skip" to skip.toString())
                 ),
                 "next" to controllerUtils.buildLink(
+                    context = context,
                     path = PATH,
                     queryParams = controllerUtils.calculateNext(total = total, limit = limit, skip = skip)
                 ),
                 "last" to controllerUtils.buildLink(
+                    context = context,
                     path = PATH,
                     queryParams = controllerUtils.calculateLast(total = total, limit = limit)
                 )

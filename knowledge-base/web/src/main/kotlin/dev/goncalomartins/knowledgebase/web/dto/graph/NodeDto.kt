@@ -1,6 +1,6 @@
 package dev.goncalomartins.knowledgebase.web.dto.graph
 
-import dev.goncalomartins.knowledge-base.common.model.graph.Node
+import dev.goncalomartins.knowledgebase.common.model.graph.Node
 
 data class NodeDto(val id: Long, val label: String, val metadata: Any)
 

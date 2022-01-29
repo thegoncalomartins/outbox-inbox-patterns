@@ -15,7 +15,8 @@ class RequestLoggingFilter {
         val request = context.request()
         val method = request.method().name()
         val path = URLDecoder.decode(request.uri(), StandardCharsets.UTF_8)
-        val address = request.remoteAddress().toString()
+        val xForwardedForAddress = request.getHeader("X-Forwarded-For")?.split(",")?.firstOrNull()
+        val address = xForwardedForAddress ?: request.remoteAddress().toString()
 
         logger.info("Request {} {} from IP {}", method, path, address)
 

@@ -1,8 +1,8 @@
 package dev.goncalomartins.knowledgebase.consumer.consumer
 
-import dev.goncalomartins.knowledge-base.common.model.movie.Movie
-import dev.goncalomartins.knowledge-base.common.service.MovieService
-import dev.goncalomartins.knowledge-base.common.service.PersonService
+import dev.goncalomartins.knowledgebase.common.model.movie.Movie
+import dev.goncalomartins.knowledgebase.common.service.MovieService
+import dev.goncalomartins.knowledgebase.common.service.PersonService
 import dev.goncalomartins.knowledgebase.consumer.util.TestUtils
 import io.quarkus.test.junit.QuarkusTest
 import io.smallrye.reactive.messaging.kafka.KafkaRecord

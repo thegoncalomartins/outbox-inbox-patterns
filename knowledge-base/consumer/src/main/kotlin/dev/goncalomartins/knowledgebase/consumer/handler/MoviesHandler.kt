@@ -1,11 +1,11 @@
 package dev.goncalomartins.knowledgebase.consumer.handler
 
-import dev.goncalomartins.knowledge-base.common.model.inbox.EventType
-import dev.goncalomartins.knowledge-base.common.model.inbox.InboxEvent
-import dev.goncalomartins.knowledge-base.common.model.movie.Movie
-import dev.goncalomartins.knowledge-base.common.service.InboxService
-import dev.goncalomartins.knowledge-base.common.service.MovieService
-import dev.goncalomartins.knowledge-base.common.util.DatabaseUtils
+import dev.goncalomartins.knowledgebase.common.model.inbox.EventType
+import dev.goncalomartins.knowledgebase.common.model.inbox.InboxEvent
+import dev.goncalomartins.knowledgebase.common.model.movie.Movie
+import dev.goncalomartins.knowledgebase.common.service.InboxService
+import dev.goncalomartins.knowledgebase.common.service.MovieService
+import dev.goncalomartins.knowledgebase.common.util.DatabaseUtils
 import dev.goncalomartins.knowledgebase.consumer.exception.EventAlreadyConsumedException
 import io.smallrye.mutiny.Uni
 import org.eclipse.microprofile.opentracing.Traced

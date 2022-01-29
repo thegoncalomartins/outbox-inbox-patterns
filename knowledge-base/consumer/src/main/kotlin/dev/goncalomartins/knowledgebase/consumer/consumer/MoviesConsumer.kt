@@ -1,6 +1,6 @@
 package dev.goncalomartins.knowledgebase.consumer.consumer
 
-import dev.goncalomartins.knowledge-base.common.model.inbox.InboxEvent
+import dev.goncalomartins.knowledgebase.common.model.inbox.InboxEvent
 import dev.goncalomartins.knowledgebase.consumer.exception.EventAlreadyConsumedException
 import dev.goncalomartins.knowledgebase.consumer.handler.MoviesHandler
 import io.smallrye.mutiny.Uni

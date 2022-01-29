@@ -1,7 +1,7 @@
 package dev.goncalomartins.knowledgebase.common.model.graph
 
-import dev.goncalomartins.knowledge-base.common.model.movie.Movie
-import dev.goncalomartins.knowledge-base.common.model.person.Person
+import dev.goncalomartins.knowledgebase.common.model.movie.Movie
+import dev.goncalomartins.knowledgebase.common.model.person.Person
 import java.util.function.Function
 import org.neo4j.driver.types.Node as Neo4jNode
 

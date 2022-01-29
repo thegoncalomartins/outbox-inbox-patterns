@@ -6,6 +6,12 @@
 
 ### Architecture
 
+![architecture](docs/movies-architecture.png)
+
+### Package Diagram
+
+![package-diagram](docs/movies-package-diagram.png)
+
 ## Running
 
 ### Via Docker
@@ -32,7 +38,7 @@ $ ./gradlew clean build quarkusDev -x test
 
 ### Starting dependencies
 ```bash
-$ docker-compose -f docker-compose.test.yml up -d test-movies-db-primary test-movies-db-secondary test-movies-db-arbiter
+$ docker-compose -f ../docker-compose.test.yml up -d test-movies-db-primary test-movies-db-secondary test-movies-db-arbiter
 ```
 
 ### Testing

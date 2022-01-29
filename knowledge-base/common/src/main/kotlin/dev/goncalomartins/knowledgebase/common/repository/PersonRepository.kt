@@ -1,8 +1,8 @@
 package dev.goncalomartins.knowledgebase.common.repository
 
 import dev.goncalomartins.knowledgebase.common.model.graph.Graph
-import dev.goncalomartins.knowledge-base.common.model.person.Person
-import dev.goncalomartins.knowledge-base.common.util.RepositoryUtils
+import dev.goncalomartins.knowledgebase.common.model.person.Person
+import dev.goncalomartins.knowledgebase.common.util.RepositoryUtils
 import io.smallrye.mutiny.Multi
 import io.smallrye.mutiny.Uni
 import org.eclipse.microprofile.opentracing.Traced
@@ -62,10 +62,10 @@ class PersonRepository {
             """
     }
 
-    fun findOne(transaction: RxTransaction, id: String, skip: Int, limit: Int): Uni<dev.goncalomartins.knowledgebase.common.model.graph.Graph> =
+    fun findOne(transaction: RxTransaction, id: String, skip: Int, limit: Int): Uni<Graph> =
         Uni
             .createFrom()
-            .item { dev.goncalomartins.knowledgebase.common.model.graph.Graph() }
+            .item { Graph() }
             .flatMap { graph ->
                 Multi
                     .createFrom()

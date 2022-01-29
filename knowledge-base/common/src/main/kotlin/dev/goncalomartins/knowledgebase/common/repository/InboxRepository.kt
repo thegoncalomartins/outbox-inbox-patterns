@@ -1,6 +1,6 @@
 package dev.goncalomartins.knowledgebase.common.repository
 
-import dev.goncalomartins.knowledge-base.common.model.inbox.InboxEvent
+import dev.goncalomartins.knowledgebase.common.model.inbox.InboxEvent
 import io.smallrye.mutiny.Uni
 import org.eclipse.microprofile.opentracing.Traced
 import org.neo4j.driver.reactive.RxTransaction

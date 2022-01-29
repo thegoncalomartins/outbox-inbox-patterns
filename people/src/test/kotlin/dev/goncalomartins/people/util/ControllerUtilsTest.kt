@@ -31,6 +31,7 @@ class ControllerUtilsTest {
     @MethodSource(value = ["buildLinkDataProvider"])
     fun testBuildLink(
         xForwardedFor: String?,
+        xForwardedProto: String?,
         path: String,
         queryParams: Map<String, String>,
         uriVariables: Map<String, String>,
@@ -38,6 +39,9 @@ class ControllerUtilsTest {
     ) {
         whenever(context.request().getHeader("X-Forwarded-For"))
             .thenReturn(xForwardedFor)
+
+        whenever(context.request().getHeader("X-Forwarded-Proto"))
+            .thenReturn(xForwardedProto)
 
         val result = controllerUtils.buildLink(context, path, queryParams, uriVariables).href.toString()
 
@@ -80,6 +84,7 @@ class ControllerUtilsTest {
     private fun buildLinkDataProvider(): Stream<Arguments> = Stream.of(
         Arguments.arguments(
             "goncalomartins.dev",
+            "http",
             "/api/people/{id}",
             mapOf("limit" to "10", "skip" to "0"),
             mapOf("id" to "123456"),
@@ -87,6 +92,7 @@ class ControllerUtilsTest {
         ),
         Arguments.arguments(
             "goncalomartins.dev",
+            "http",
             "/api/people",
             mapOf<String, String>(),
             mapOf<String, String>(),
@@ -94,13 +100,112 @@ class ControllerUtilsTest {
         ),
         Arguments.arguments(
             "goncalomartins.dev",
+            "http",
             "/api/people",
             mapOf("limit" to "10", "skip" to "0"),
             mapOf<String, String>(),
             "http://goncalomartins.dev/api/people?limit=10&skip=0"
         ),
+        Arguments.arguments(
+            null,
+            "http",
+            "/api/people/{id}",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf("id" to "123456"),
+            "http://${InetAddress.getLocalHost().hostAddress}:$port/api/people/123456?limit=10&skip=0"
+        ),
+        Arguments.arguments(
+            null,
+            "http",
+            "/api/people",
+            mapOf<String, String>(),
+            mapOf<String, String>(),
+            "http://${InetAddress.getLocalHost().hostAddress}:$port/api/people"
+        ),
+        Arguments.arguments(
+            null,
+            "http",
+            "/api/people",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf<String, String>(),
+            "http://${InetAddress.getLocalHost().hostAddress}:$port/api/people?limit=10&skip=0"
+        ),
 
         Arguments.arguments(
+            "goncalomartins.dev",
+            "https",
+            "/api/people/{id}",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf("id" to "123456"),
+            "https://goncalomartins.dev/api/people/123456?limit=10&skip=0"
+        ),
+        Arguments.arguments(
+            "goncalomartins.dev",
+            "https",
+            "/api/people",
+            mapOf<String, String>(),
+            mapOf<String, String>(),
+            "https://goncalomartins.dev/api/people"
+        ),
+        Arguments.arguments(
+            "goncalomartins.dev",
+            "https",
+            "/api/people",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf<String, String>(),
+            "https://goncalomartins.dev/api/people?limit=10&skip=0"
+        ),
+        Arguments.arguments(
+            null,
+            "https",
+            "/api/people/{id}",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf("id" to "123456"),
+            "https://${InetAddress.getLocalHost().hostAddress}:$port/api/people/123456?limit=10&skip=0"
+        ),
+        Arguments.arguments(
+            null,
+            "https",
+            "/api/people",
+            mapOf<String, String>(),
+            mapOf<String, String>(),
+            "https://${InetAddress.getLocalHost().hostAddress}:$port/api/people"
+        ),
+        Arguments.arguments(
+            null,
+            "https",
+            "/api/people",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf<String, String>(),
+            "https://${InetAddress.getLocalHost().hostAddress}:$port/api/people?limit=10&skip=0"
+        ),
+
+        Arguments.arguments(
+            "goncalomartins.dev",
+            null,
+            "/api/people/{id}",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf("id" to "123456"),
+            "http://goncalomartins.dev/api/people/123456?limit=10&skip=0"
+        ),
+        Arguments.arguments(
+            "goncalomartins.dev",
+            null,
+            "/api/people",
+            mapOf<String, String>(),
+            mapOf<String, String>(),
+            "http://goncalomartins.dev/api/people"
+        ),
+        Arguments.arguments(
+            "goncalomartins.dev",
+            null,
+            "/api/people",
+            mapOf("limit" to "10", "skip" to "0"),
+            mapOf<String, String>(),
+            "http://goncalomartins.dev/api/people?limit=10&skip=0"
+        ),
+        Arguments.arguments(
+            null,
             null,
             "/api/people/{id}",
             mapOf("limit" to "10", "skip" to "0"),
@@ -109,6 +214,7 @@ class ControllerUtilsTest {
         ),
         Arguments.arguments(
             null,
+            null,
             "/api/people",
             mapOf<String, String>(),
             mapOf<String, String>(),
@@ -116,11 +222,12 @@ class ControllerUtilsTest {
         ),
         Arguments.arguments(
             null,
+            null,
             "/api/people",
             mapOf("limit" to "10", "skip" to "0"),
             mapOf<String, String>(),
             "http://${InetAddress.getLocalHost().hostAddress}:$port/api/people?limit=10&skip=0"
-        )
+        ),
     )
 
     private fun calculatePreviousDataProvider(): Stream<Arguments> =

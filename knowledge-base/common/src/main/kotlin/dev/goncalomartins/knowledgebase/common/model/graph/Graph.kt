@@ -2,20 +2,20 @@ package dev.goncalomartins.knowledgebase.common.model.graph
 
 class Graph {
     private var total: Long = 0
-    private val nodes: MutableSet<dev.goncalomartins.knowledgebase.common.model.graph.Node> = mutableSetOf()
-    private val edges: MutableSet<dev.goncalomartins.knowledgebase.common.model.graph.Edge> = mutableSetOf()
+    private val nodes: MutableSet<Node> = mutableSetOf()
+    private val edges: MutableSet<Edge> = mutableSetOf()
 
-    fun addNode(node: dev.goncalomartins.knowledgebase.common.model.graph.Node) = nodes.add(node)
+    fun addNode(node: Node) = nodes.add(node)
 
-    fun addEdge(edge: dev.goncalomartins.knowledgebase.common.model.graph.Edge) = edges.add(edge)
+    fun addEdge(edge: Edge) = edges.add(edge)
 
-    fun nodes(): MutableSet<dev.goncalomartins.knowledgebase.common.model.graph.Node> = nodes
+    fun nodes(): MutableSet<Node> = nodes
 
-    fun edges(): MutableSet<dev.goncalomartins.knowledgebase.common.model.graph.Edge> = edges
+    fun edges(): MutableSet<Edge> = edges
 
     fun total(): Long = total
 
-    fun total(total: Long): dev.goncalomartins.knowledgebase.common.model.graph.Graph = run {
+    fun total(total: Long): Graph = run {
         this.total = total
         this
     }

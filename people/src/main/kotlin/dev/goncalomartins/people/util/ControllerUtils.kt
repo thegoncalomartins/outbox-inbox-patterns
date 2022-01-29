@@ -55,6 +55,12 @@ class ControllerUtils(
         val ownHost = "${InetAddress.getLocalHost().hostAddress}:$port"
         val host = apiGatewayHost ?: ownHost
 
-        return URI.create("http://$host")
+        val forwardedProtocol = context
+            .request()
+            .getHeader("X-Forwarded-Proto")
+
+        val protocol = forwardedProtocol ?: "http"
+
+        return URI.create("$protocol://$host")
     }
 }

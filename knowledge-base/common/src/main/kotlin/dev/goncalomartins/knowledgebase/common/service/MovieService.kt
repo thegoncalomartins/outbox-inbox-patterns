@@ -1,10 +1,10 @@
 package dev.goncalomartins.knowledgebase.common.service
 
 import dev.goncalomartins.knowledgebase.common.model.graph.Graph
-import dev.goncalomartins.knowledge-base.common.model.movie.Movie
-import dev.goncalomartins.knowledge-base.common.model.movie.Movies
-import dev.goncalomartins.knowledge-base.common.repository.MovieRepository
-import dev.goncalomartins.knowledge-base.common.util.DatabaseUtils
+import dev.goncalomartins.knowledgebase.common.model.movie.Movie
+import dev.goncalomartins.knowledgebase.common.model.movie.Movies
+import dev.goncalomartins.knowledgebase.common.repository.MovieRepository
+import dev.goncalomartins.knowledgebase.common.util.DatabaseUtils
 import io.smallrye.mutiny.Uni
 import org.eclipse.microprofile.opentracing.Traced
 import org.neo4j.driver.reactive.RxTransaction
@@ -19,7 +19,7 @@ class MovieService(val movieRepository: MovieRepository, val databaseUtils: Data
         const val DEFAULT_SKIP = 0
     }
 
-    fun findOne(id: String, skip: Int = DEFAULT_SKIP, limit: Int = DEFAULT_LIMIT): Uni<dev.goncalomartins.knowledgebase.common.model.graph.Graph> =
+    fun findOne(id: String, skip: Int = DEFAULT_SKIP, limit: Int = DEFAULT_LIMIT): Uni<Graph> =
         databaseUtils.inTransaction { transaction ->
             movieRepository.findOne(transaction, id, skip, limit)
         }
