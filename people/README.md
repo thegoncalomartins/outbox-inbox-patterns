@@ -45,3 +45,22 @@ $ docker-compose -f ../docker-compose.test.yml up -d test-people-db-primary test
 ```bash
 $ ./gradlew clean build
 ```
+
+## Debezium MongoDB Kafka Connector Configuration
+```yaml
+connector.class: io.debezium.connector.mongodb.MongoDbConnector
+key.converter: org.apache.kafka.connect.storage.StringConverter
+value.converter: org.apache.kafka.connect.json.JsonConverter
+transforms: unwrap,createKey
+mongodb.hosts: people-db-primary:27017
+mongodb.user: root
+mongodb.password: v5au8MVCvgh5BpSJ
+mongodb.name: people-db
+collection.include.list: people.outbox
+transforms.createKey.type: org.apache.kafka.connect.transforms.ValueToKey
+transforms.addPrefix.type: org.apache.kafka.connect.transforms.RegexRouter
+transforms.createKey.fields: aggregate_id
+transforms.unwrap.type: io.debezium.connector.mongodb.transforms.ExtractNewDocumentState
+key.converter.schemas.enable: false
+value.converter.schemas.enable: false
+```

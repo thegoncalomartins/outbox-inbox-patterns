@@ -45,3 +45,23 @@ $ docker-compose -f ../docker-compose.test.yml up -d test-movies-db-primary test
 ```bash
 $ ./gradlew clean build
 ```
+
+## Debezium MongoDB Kafka Connector Configuration
+
+```yaml
+connector.class: io.debezium.connector.mongodb.MongoDbConnector
+key.converter: org.apache.kafka.connect.storage.StringConverter
+value.converter: org.apache.kafka.connect.json.JsonConverter
+transforms: unwrap,createKey
+mongodb.hosts: movies-db-primary:27017
+mongodb.user: root
+mongodb.password: xH8Tw7Ug8ApgEC2b
+mongodb.name: movies-db
+collection.include.list: movies.outbox
+transforms.createKey.type: org.apache.kafka.connect.transforms.ValueToKey
+transforms.addPrefix.type: org.apache.kafka.connect.transforms.RegexRouter
+transforms.createKey.fields: aggregate_id
+transforms.unwrap.type: io.debezium.connector.mongodb.transforms.ExtractNewDocumentState
+key.converter.schemas.enable: false
+value.converter.schemas.enable: false
+```
