@@ -1,6 +1,6 @@
 # Building a Knowledge Base Service With Neo4j, Kafka, and the Outbox Pattern
 
-This repository contains the code for a small project that was built to support a [Medium article](https://medium.com/@thegoncalomartins/building-a-knowledge-base-service-with-neo4j-and-the-outbox-pattern-9fffeaa284a6).
+This repository contains the code for a small project that was built to support a [Medium article](https://medium.com/@thegoncalomartins/building-a-knowledge-base-service-with-neo4j-kafka-and-the-outbox-pattern-9fffeaa284a6).
 
 ## Requirements
 
