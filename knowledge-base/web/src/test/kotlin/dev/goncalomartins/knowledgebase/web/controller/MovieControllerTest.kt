@@ -15,6 +15,7 @@ import org.apache.http.HttpStatus
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertAll
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.MethodOrderer
@@ -57,6 +58,92 @@ class MovieControllerTest {
     fun setup() {
         createPerson()
         createMovie()
+    }
+
+    @Test
+    @DisplayName("1 - List Movies")
+    fun testListMovies() {
+
+        val responseBody = JsonObject(
+            RestAssured
+                .given()
+                .headers(
+                    Headers.headers(
+                        Header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
+                    )
+                )
+                .`when`()
+                .get(MovieController.PATH)
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract()
+                .body()
+                .asString()
+        )
+
+        assertAll(
+            { Assertions.assertNotNull(responseBody.getInteger("total")) },
+            { Assertions.assertEquals(1, responseBody.getInteger("total")) },
+            { Assertions.assertNotNull(responseBody.getJsonObject("_embedded")) },
+            { Assertions.assertNotNull(responseBody.getJsonObject("_embedded").getJsonArray("movies")) },
+            {
+                Assertions.assertNotNull(
+                    responseBody.getJsonObject("_embedded").getJsonArray("movies").getJsonObject(0)
+                )
+            },
+            {
+                Assertions.assertNotNull(
+                    responseBody.getJsonObject("_embedded").getJsonArray("movies").getJsonObject(0).getString("id")
+                )
+            },
+            {
+                Assertions.assertEquals(
+                    movie.title,
+                    responseBody.getJsonObject("_embedded").getJsonArray("movies").getJsonObject(0).getString("title")
+                )
+            },
+            {
+                Assertions.assertEquals(
+                    movie.released,
+                    responseBody.getJsonObject("_embedded").getJsonArray("movies").getJsonObject(0)
+                        .getInteger("released")
+                )
+            },
+            {
+                Assertions.assertNotNull(
+                    responseBody.getJsonObject("_embedded").getJsonArray("movies").getJsonObject(0)
+                        .getString("created_at")
+                )
+            },
+            {
+                Assertions.assertNotNull(
+                    responseBody.getJsonObject("_embedded").getJsonArray("movies").getJsonObject(0)
+                        .getString("updated_at")
+                )
+            },
+            { Assertions.assertNotNull(responseBody.getJsonObject("_links")) },
+            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("self")) },
+            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("first")) },
+            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("previous")) },
+            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("next")) },
+            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("last")) },
+            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("self").getString("href")) },
+            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("first").getString("href")) },
+            {
+                Assertions.assertNotNull(
+                    responseBody.getJsonObject("_links").getJsonObject("previous").getString("href")
+                )
+            },
+            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("next").getString("href")) },
+            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("last").getString("href")) },
+            {
+                assertTrue(
+                    responseBody.getJsonObject("_embedded").getJsonArray("movies").getJsonObject(0)
+                        .getJsonObject("_links").getJsonObject("self").getString("href")
+                        .contains("${MovieController.PATH}/${movie.id}")
+                )
+            },
+        )
     }
 
     @Test
