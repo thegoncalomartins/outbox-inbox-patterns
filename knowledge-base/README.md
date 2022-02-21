@@ -15,7 +15,7 @@ to query the graph.
 
 ### Use of Outbox and Inbox Patterns
 
-![](docs/outbox-pattern-with-cdc.png)
+![outbox-pattern-cdc](../docs/outbox-pattern-with-cdc.png)
 
 ![outbox-inbox-flowchart-diagram](docs/outbox-inbox-flowchart.png)
 

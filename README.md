@@ -42,3 +42,13 @@ $ ./init.sh
 ```
 
 It may take a while because all the gradle dependencies need to be downloaded and the source code compiled.
+
+After the script has finished, the API Gateway should be exposed at port `8090`.
+
+You can check that by running:
+```bash
+$ curl http://localhost:8090/__health
+{"status":"OK"}
+```
+
+Open the [postman collection](postman/KnowledgeBaseWithOutboxPattern.postman_collection.json) and try to make some requests.
