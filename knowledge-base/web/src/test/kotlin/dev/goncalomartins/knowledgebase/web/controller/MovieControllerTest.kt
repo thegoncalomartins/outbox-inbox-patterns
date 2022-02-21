@@ -6,6 +6,7 @@ import dev.goncalomartins.knowledgebase.common.model.person.Person
 import dev.goncalomartins.knowledgebase.common.service.MovieService
 import dev.goncalomartins.knowledgebase.common.service.PersonService
 import dev.goncalomartins.knowledgebase.common.util.DatabaseUtils
+import dev.goncalomartins.knowledgebase.web.dto.graph.GraphDto
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured
 import io.restassured.http.Header
@@ -13,8 +14,9 @@ import io.restassured.http.Headers
 import io.vertx.core.json.JsonObject
 import org.apache.http.HttpStatus
 import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertAll
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
@@ -82,60 +84,60 @@ class MovieControllerTest {
         )
 
         assertAll(
-            { Assertions.assertNotNull(responseBody.getInteger("total")) },
-            { Assertions.assertEquals(1, responseBody.getInteger("total")) },
-            { Assertions.assertNotNull(responseBody.getJsonObject("_embedded")) },
-            { Assertions.assertNotNull(responseBody.getJsonObject("_embedded").getJsonArray("movies")) },
+            { assertNotNull(responseBody.getInteger("total")) },
+            { assertEquals(1, responseBody.getInteger("total")) },
+            { assertNotNull(responseBody.getJsonObject("_embedded")) },
+            { assertNotNull(responseBody.getJsonObject("_embedded").getJsonArray("movies")) },
             {
-                Assertions.assertNotNull(
+                assertNotNull(
                     responseBody.getJsonObject("_embedded").getJsonArray("movies").getJsonObject(0)
                 )
             },
             {
-                Assertions.assertNotNull(
+                assertNotNull(
                     responseBody.getJsonObject("_embedded").getJsonArray("movies").getJsonObject(0).getString("id")
                 )
             },
             {
-                Assertions.assertEquals(
+                assertEquals(
                     movie.title,
                     responseBody.getJsonObject("_embedded").getJsonArray("movies").getJsonObject(0).getString("title")
                 )
             },
             {
-                Assertions.assertEquals(
+                assertEquals(
                     movie.released,
                     responseBody.getJsonObject("_embedded").getJsonArray("movies").getJsonObject(0)
                         .getInteger("released")
                 )
             },
             {
-                Assertions.assertNotNull(
+                assertNotNull(
                     responseBody.getJsonObject("_embedded").getJsonArray("movies").getJsonObject(0)
                         .getString("created_at")
                 )
             },
             {
-                Assertions.assertNotNull(
+                assertNotNull(
                     responseBody.getJsonObject("_embedded").getJsonArray("movies").getJsonObject(0)
                         .getString("updated_at")
                 )
             },
-            { Assertions.assertNotNull(responseBody.getJsonObject("_links")) },
-            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("self")) },
-            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("first")) },
-            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("previous")) },
-            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("next")) },
-            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("last")) },
-            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("self").getString("href")) },
-            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("first").getString("href")) },
+            { assertNotNull(responseBody.getJsonObject("_links")) },
+            { assertNotNull(responseBody.getJsonObject("_links").getJsonObject("self")) },
+            { assertNotNull(responseBody.getJsonObject("_links").getJsonObject("first")) },
+            { assertNotNull(responseBody.getJsonObject("_links").getJsonObject("previous")) },
+            { assertNotNull(responseBody.getJsonObject("_links").getJsonObject("next")) },
+            { assertNotNull(responseBody.getJsonObject("_links").getJsonObject("last")) },
+            { assertNotNull(responseBody.getJsonObject("_links").getJsonObject("self").getString("href")) },
+            { assertNotNull(responseBody.getJsonObject("_links").getJsonObject("first").getString("href")) },
             {
-                Assertions.assertNotNull(
+                assertNotNull(
                     responseBody.getJsonObject("_links").getJsonObject("previous").getString("href")
                 )
             },
-            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("next").getString("href")) },
-            { Assertions.assertNotNull(responseBody.getJsonObject("_links").getJsonObject("last").getString("href")) },
+            { assertNotNull(responseBody.getJsonObject("_links").getJsonObject("next").getString("href")) },
+            { assertNotNull(responseBody.getJsonObject("_links").getJsonObject("last").getString("href")) },
             {
                 assertTrue(
                     responseBody.getJsonObject("_embedded").getJsonArray("movies").getJsonObject(0)
@@ -168,13 +170,114 @@ class MovieControllerTest {
         )
 
         assertAll(
-            { Assertions.assertEquals("404", responseBody.getString("code")) },
+            { assertEquals("404", responseBody.getString("code")) },
             {
-                Assertions.assertEquals(
+                assertEquals(
                     "Movie with id '61a66a521ec5f616a4fc2f9f' does not exist",
                     responseBody.getString("message")
                 )
             },
+        )
+    }
+
+    @Test
+    @DisplayName("3 - Read Movie")
+    fun testReadMovie() {
+        val responseBody = JsonObject(
+            RestAssured
+                .given()
+                .headers(
+                    Headers.headers(
+                        Header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
+                    )
+                )
+                .`when`()
+                .get("${MovieController.PATH}/${movie.id}")
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract()
+                .body()
+                .asString()
+        )
+
+        val graph = responseBody.getJsonObject("_embedded").getJsonObject("graph").mapTo(GraphDto::class.java)
+
+        assertAll(
+            { assertEquals(2, graph.nodes.size) },
+            { assertEquals(2, graph.edges.size) },
+            {
+                graph.nodes.forEach { node ->
+                    if (node.metadata is Movie) {
+
+                        val movie = node.metadata as Movie
+
+                        assertAll(
+                            { assertEquals(this.movie.id, movie.id) },
+                            { assertEquals(this.movie.title, movie.title) },
+                            { assertEquals(this.movie.released, movie.released) },
+                            {
+                                assertEquals(
+                                    this.movie.createdAt,
+                                    movie.createdAt
+                                )
+                            },
+                            {
+                                assertEquals(
+                                    this.movie.updatedAt,
+                                    movie.updatedAt
+                                )
+                            },
+                        )
+                    }
+
+                    if (node.metadata is Person) {
+
+                        val person = node.metadata as Person
+
+                        assertAll(
+                            { assertEquals(this.person.id, person.id) },
+                            { assertEquals(this.person.name, person.name) },
+                            { assertEquals(this.person.birthDate, person.birthDate) },
+                            {
+                                assertEquals(
+                                    this.person.createdAt,
+                                    person.createdAt
+                                )
+                            },
+                            {
+                                assertEquals(
+                                    this.person.updatedAt,
+                                    person.updatedAt
+                                )
+                            },
+                        )
+                    }
+                }
+            },
+            {
+                val personNodeId = graph.nodes.first { node -> node.label == "Person" }.id
+                val movieNodeId = graph.nodes.first { node -> node.label == "Movie" }.id
+                val role = this.movie.cast?.elementAt(0)?.role
+
+                assertAll(
+                    {
+                        assertTrue(
+                            graph.edges
+                                .any { edge ->
+                                    edge.from == personNodeId && edge.to == movieNodeId && edge.relationship == "ACTED_IN" && edge.metadata?.get(
+                                        "role"
+                                    ) == role
+                                }
+                        )
+                    },
+                    {
+                        assertTrue(
+                            graph.edges
+                                .any { edge -> edge.from == movieNodeId && edge.to == personNodeId && edge.relationship == "DIRECTED_BY" }
+                        )
+                    }
+                )
+            }
         )
     }
 

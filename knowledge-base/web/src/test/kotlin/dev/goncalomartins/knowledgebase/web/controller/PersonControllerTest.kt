@@ -1,8 +1,12 @@
 package dev.goncalomartins.knowledgebase.web.controller
 
+import dev.goncalomartins.knowledgebase.common.model.movie.Actor
+import dev.goncalomartins.knowledgebase.common.model.movie.Movie
 import dev.goncalomartins.knowledgebase.common.model.person.Person
+import dev.goncalomartins.knowledgebase.common.service.MovieService
 import dev.goncalomartins.knowledgebase.common.service.PersonService
 import dev.goncalomartins.knowledgebase.common.util.DatabaseUtils
+import dev.goncalomartins.knowledgebase.web.dto.graph.GraphDto
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured
 import io.restassured.http.Header
@@ -10,6 +14,7 @@ import io.restassured.http.Headers
 import io.vertx.core.json.JsonObject
 import org.apache.http.HttpStatus
 import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -36,18 +41,31 @@ class PersonControllerTest {
     lateinit var personService: PersonService
 
     @Inject
+    lateinit var movieService: MovieService
+
+    @Inject
     lateinit var databaseUtils: DatabaseUtils
 
     val person = Person(UUID.randomUUID().toString(), "name", LocalDate.now(), Instant.now(), Instant.now())
+    val movie = Movie(
+        UUID.randomUUID().toString(),
+        "title",
+        2022,
+        setOf(person.id),
+        setOf(Actor(person.id, "role")),
+        Instant.now(),
+        Instant.now()
+    )
 
     @BeforeAll
     fun setup() {
         createPerson()
+        createMovie()
     }
 
     @Test
     @DisplayName("1 - List People")
-    fun testReadPeople() {
+    fun testListPeople() {
         val responseBody = JsonObject(
             RestAssured
                 .given()
@@ -124,7 +142,7 @@ class PersonControllerTest {
 
     @Test
     @DisplayName("2 - Read Nonexistent Person")
-    fun testReadNonexistentMovie() {
+    fun testReadNonexistentPerson() {
 
         val responseBody = JsonObject(
             RestAssured
@@ -154,10 +172,9 @@ class PersonControllerTest {
         )
     }
 
-   /* @Test
+    @Test
     @DisplayName("3 - Read Person")
     fun testReadPerson() {
-
         val responseBody = JsonObject(
             RestAssured
                 .given()
@@ -175,26 +192,91 @@ class PersonControllerTest {
                 .asString()
         )
 
+        val graph = responseBody.getJsonObject("_embedded").getJsonObject("graph").mapTo(GraphDto::class.java)
+
         assertAll(
-            { assertEquals(person.name, responseBody.getJsonObject("_embedded").getJsonObject("graph").getJsonArray("nodes").getJsonObject(0).getJsonObject("metadata").getString("name")) },
-            { assertEquals(person.birthDate.toString(), responseBody.getJsonObject("_embedded").getJsonObject("graph").getJsonArray("nodes").getJsonObject(0).getJsonObject("metadata").getString("birth_date")) },
-            { assertNotNull(responseBody.getJsonObject("_embedded").getJsonObject("graph").getJsonArray("nodes").getJsonObject(0).getJsonObject("metadata").getString("created_at")) },
-            { assertNotNull(responseBody.getJsonObject("_embedded").getJsonObject("graph").getJsonArray("nodes").getJsonObject(0).getJsonObject("metadata").getString("updated_at")) },
-            { assertNotNull(responseBody.getJsonObject("_links")) },
-            { assertNotNull(responseBody.getJsonObject("_links").getJsonObject("self")) },
-            { assertNotNull(responseBody.getJsonObject("_links").getJsonObject("self").getString("href")) },
+            { assertEquals(2, graph.nodes.size) },
+            { assertEquals(2, graph.edges.size) },
             {
-                assertTrue(
-                    responseBody.getJsonObject("_links").getJsonObject("self").getString("href")
-                        .contains("${PersonController.PATH}/${person.id}")
-                )
+                graph.nodes.forEach { node ->
+                    if (node.metadata is Movie) {
+
+                        val movie = node.metadata as Movie
+
+                        Assertions.assertAll(
+                            { assertEquals(this.movie.id, movie.id) },
+                            { assertEquals(this.movie.title, movie.title) },
+                            { assertEquals(this.movie.released, movie.released) },
+                            {
+                                assertEquals(
+                                    this.movie.createdAt,
+                                    movie.createdAt
+                                )
+                            },
+                            {
+                                assertEquals(
+                                    this.movie.updatedAt,
+                                    movie.updatedAt
+                                )
+                            },
+                        )
+                    }
+
+                    if (node.metadata is Person) {
+
+                        val person = node.metadata as Person
+
+                        Assertions.assertAll(
+                            { assertEquals(this.person.id, person.id) },
+                            { assertEquals(this.person.name, person.name) },
+                            { assertEquals(this.person.birthDate, person.birthDate) },
+                            {
+                                assertEquals(
+                                    this.person.createdAt,
+                                    person.createdAt
+                                )
+                            },
+                            {
+                                assertEquals(
+                                    this.person.updatedAt,
+                                    person.updatedAt
+                                )
+                            },
+                        )
+                    }
+                }
             },
+            {
+                val personNodeId = graph.nodes.first { node -> node.label == "Person" }.id
+                val movieNodeId = graph.nodes.first { node -> node.label == "Movie" }.id
+                val role = this.movie.cast?.elementAt(0)?.role
+
+                assertAll(
+                    {
+                        assertTrue(
+                            graph.edges
+                                .any { edge ->
+                                    edge.from == personNodeId && edge.to == movieNodeId && edge.relationship == "ACTED_IN" && edge.metadata?.get(
+                                        "role"
+                                    ) == role
+                                }
+                        )
+                    },
+                    {
+                        assertTrue(
+                            graph.edges
+                                .any { edge -> edge.from == movieNodeId && edge.to == personNodeId && edge.relationship == "DIRECTED_BY" }
+                        )
+                    }
+                )
+            }
         )
-    }*/
+    }
 
     @AfterAll
     fun teardown() {
         deletePerson()
+        deleteMovie()
     }
 
     private fun createPerson() {
@@ -203,9 +285,21 @@ class PersonControllerTest {
         }.await().indefinitely()
     }
 
+    private fun createMovie() {
+        databaseUtils.inTransaction { transaction ->
+            movieService.save(transaction, movie)
+        }.await().indefinitely()
+    }
+
     private fun deletePerson() {
         databaseUtils.inTransaction { transaction ->
             personService.delete(transaction, person)
+        }.await().indefinitely()
+    }
+
+    private fun deleteMovie() {
+        databaseUtils.inTransaction { transaction ->
+            movieService.delete(transaction, movie)
         }.await().indefinitely()
     }
 }
