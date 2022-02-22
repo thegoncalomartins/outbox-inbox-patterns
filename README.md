@@ -29,10 +29,6 @@ This repository contains the code for a small project that was built to support 
 * ["Movies" Documentation](./movies/README.md)
 * ["Knowledge Base" Documentation](./knowledge-base/README.md)
 
-## Demo
-
-![](./docs/neo4j-screenshot.png)
-
 
 ## Running
 
@@ -51,4 +47,20 @@ $ curl http://localhost:8090/__health
 {"status":"OK"}
 ```
 
+## Demo
+
 Open the [postman collection](postman/KnowledgeBaseWithOutboxPattern.postman_collection.json) and try to make some requests.
+
+You can then go to [Kafka's Landoop UI](http://localhost:3030) to check if messages have arrived to `people-db.people.outbox` and `movies-db.movies.outbox` topics.
+
+
+
+To check that the information is persited in Neo4j, go to [Neo4j Browser](http://localhost:7474) and run the following query `MATCH (n) RETURN n LIMIT 35`.
+It should return some nodes and edges.
+
+Example:
+
+![](./docs/neo4j-screenshot.png)
+
+## Metrics
+
