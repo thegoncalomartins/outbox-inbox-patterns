@@ -18,7 +18,7 @@ scrape_configs:
     scrape_timeout: 15s
     metrics_path: /metrics
     static_configs:
-      - targets: ['mongodb-people-exporter:9216', 'mongodb-movies-exporter:9216']
+      - targets: ['people-db-mongodb-exporter:9216', 'movies-db-mongodb-exporter:9216']
   - job_name: 'databases (neo4j)'
     metrics_path: /metrics
     static_configs:
